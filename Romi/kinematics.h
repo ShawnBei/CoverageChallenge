@@ -8,6 +8,7 @@ const float WHEEL_RADIUS = 35.0;
 const float WHEEL_SEPARATION = 139;
 const float COUNTS_PER_WHEEL_REVOLUTION = GEAR_RATIO * COUNTS_PER_SHAFT_REVOLUTION;
 const float MM_PER_COUNT = ( 2 * WHEEL_RADIUS * PI ) / COUNTS_PER_WHEEL_REVOLUTION;
+const float COUNTS_PER_MM = 6.55;
 
 class Kinematics
 {
@@ -24,6 +25,8 @@ class Kinematics
          void  setDebug(bool state);
          float getDistanceFromOrigin();
          float getAngularVelocity();
+         float rotationTheta;
+         
         
     private:
 
@@ -56,6 +59,8 @@ void Kinematics::update()
     y+= mean_delta * sin(theta);
     theta -=  (left_delta-right_delta) / (WHEEL_SEPARATION);  
 
+    rotationTheta  = theta;
+    
     float time_elapsed = millis() - last_update;
     last_update = millis();
 

@@ -57,6 +57,9 @@ PID           LeftSpeedControl( 3.5, 20.9, 0.04 );
 PID           RightSpeedControl( 3.5, 20.9, 0.04 );
 PID           HeadingControl( 1.5, 0, 0.001 );
 
+
+
+//PID           RightSpeedControl( 3.5, 20.9, 0.04 );
 Mapper        Map; //Class for representing the map
 
 Pushbutton    ButtonB( BUTTON_B, DEFAULT_STATE_HIGH);
@@ -76,6 +79,21 @@ float right_speed_demand = 0;
 
 float angle;
 
+int COUNT = COUNTS_PER_MM * 72;
+int count = COUNT;
+int STATE;
+char SMALLEST;
+float direction;
+int condition_walk = 0;
+
+#define FORWARD 0;
+#define WALK    1;
+#define ROTATE  2;
+
+#define UP 0;
+#define DOWN 1;
+#define LEFT 2;
+#define RIGHT 3;
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
  * This setup() routine initialises all class instances above and peripherals.   *
  * It is recommended:                                                            *
@@ -133,7 +151,7 @@ void setup()
   // !!! A second button press will erase the map !!!
   ButtonB.waitForButton();  
 
-  Map.initMap();
+ 
 
   Map.printMap();
 
@@ -142,6 +160,7 @@ void setup()
 
   Serial.println("Map Erased - Mapping Started");
   Map.resetMap();
+  Map.initMap();
 
   // Your extra setup code is best placed here:
   // ...
@@ -158,7 +177,6 @@ void setup()
   RightSpeedControl.reset();
   left_speed_demand = 0;
   right_speed_demand = 0;
-
   
   
 }
@@ -180,18 +198,157 @@ void loop() {
 
   doMapping();
 
+  //Serial.println(Pose.getThetaDegrees());
+  //wavefront();
   // Rotation
   
   delay(2);
 }
+
+void wavefront(){
+
+  
+  switch(STATE){
+    case 0: forward();
+            break;
+    case 1: walk();
+            break;
+    case 2: rotate();
+            break;
+    default: Serial.println("r");
+             break;
+  }
+}
+
+void forward(){
+  int condition = (count - right_encoder_count) < 0;
+
+  if(condition){
+    // Read map
+    stop_speed();
+
+    STATE = WALK;
+  }
+  else{
+    int demand = 15;
+    
+    left_speed_demand = demand;
+    right_speed_demand = demand;
+  }
+}
+
+void walk(){
+
+  determine_angle();
+
+
+  
+
+
+    Serial.print( n_val );
+    Serial.print(", ");
+    Serial.print( s_val );
+    Serial.print(", ");
+    Serial.print( w_val  );
+    Serial.print(", ");
+    Serial.println( e_val );
+    
+  if( SMALLEST > s_val ){
+    Serial.println("hej");
+    SMALLEST = s_val;
+    direction  = 180 + Pose.getThetaDegrees();
+    //FLAG turned 180
+  }
+  
+  if( SMALLEST > w_val){
+    SMALLEST = w_val;
+    direction = 90 + Pose.getThetaDegrees();
+    //FLAG turned 90
+  }
+
+  if( SMALLEST > e_val){
+    SMALLEST = e_val;
+    direction = -90 + Pose.getThetaDegrees();
+    //FLAG turned -90
+    
+  }
+
+  Serial.println(direction);
+
+  if(direction == 0){
+    Serial.println("FORWARD");
+    STATE = FORWARD;
+  }else{
+    // ROTATE
+    Serial.println("ROTATE");
+    STATE = ROTATE;
+  }
+}
+
+int determine_angle(){
+  
+  int x_index = Map.poseToIndex(Pose.getX(), MAP_X, MAP_RESOLUTION);
+  int y_index = Map.poseToIndex(Pose.getY(), MAP_Y, MAP_RESOLUTION);
+
+  int n  = (char) EEPROM.read((x_index * MAP_RESOLUTION)       + (y_index + 1));
+  int s  = (char) EEPROM.read((x_index * MAP_RESOLUTION)       + (y_index - 1));
+  int w  = (char) EEPROM.read(((x_index - 1) * MAP_RESOLUTION) + y_index); 
+  int e  = (char) EEPROM.read(((x_index + 1) * MAP_RESOLUTION) + y_index); 
+
+  
+  // -> -> -> -> -> -> -> -> -> -> -> -> 
+  switch (FLAG){
+    case 0: char w_val  =  n;
+            char e_val  =  s;
+            char s_val  =  w;
+            char n_val  =  e;
+            break;
+            
+    case 1: char w_val  =  ;
+            char e_val  =  ;
+            char s_val  =  ;
+            char n_val  =  ;
+            break;
+
+    case 2: char w_val  =  ;
+            char e_val  =  ;
+            char s_val  =  ;
+            char n_val  =  ;
+            break;
+    case 3: char w_val  =  ;
+            char e_val  =  ;
+            char s_val  =  ;
+            char n_val  =  ;
+            break;
+    default:  Serial.println("ERROR");
+    
+  }
+
+  
+
+  
+  SMALLEST  = n_val;
+  direction = 0;
+  
+
+}
+
 void rotate() {
-  int condition = (angle - Pose.getThetaDegrees()  ) >0;
+//  int condition;
+//  if(direction < 0){
+//    
+//  }
+
+  int condition = (direction - Pose.getThetaDegrees() ) < 0;
 
   if (condition) {
-    stop_speed();
+    Serial.println("finished");
+    count = right_encoder_count + COUNT;
+    STATE = FORWARD;
+    //STATE = WALK;
     
   } else {
-    float output = HeadingControl.update(angle, Pose.getThetaRadians() ); // use for more accuracy
+    //float output = HeadingControl.update(angle, Pose.getThetaRadians() ); // use for more accuracy
     float demand = -15;
 
     left_speed_demand = demand;
@@ -199,6 +356,11 @@ void rotate() {
     
   }
 }
+
+//int Mapper::poseToIndex(int x, int map_size, int resolution)
+//{
+//    return x / (map_size / resolution);
+//}
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
  * We have implemented a random walk behaviour for you
@@ -265,6 +427,10 @@ void doMapping() {
   // The rationale being:
   // We can't trust very close readings or very far.
   // ...but feel free to investigate this.
+
+  //explored areas
+  Map.updateMapFeature( (byte)'=', Pose.getY(), Pose.getX() );
+  
   float distance = DistanceSensor.getDistanceInMM();
   if( distance < 40 && distance > 12 ) {
 
@@ -279,7 +445,7 @@ void doMapping() {
     // Here we calculate the actual position of the obstacle we have detected
     float projected_x = Pose.getX() + ( distance * cos( Pose.getThetaRadians() ) );
     float projected_y = Pose.getY() + ( distance * sin( Pose.getThetaRadians() ) );
-    Map.updateMapFeature( (byte)'O', Pose.getY(), Pose.getX() );
+    //Map.updateMapFeature( (byte)'O', projected_y, projected_x );
     
     
   } 
