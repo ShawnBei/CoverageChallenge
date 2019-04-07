@@ -70,6 +70,14 @@ Pushbutton    ButtonB( BUTTON_B, DEFAULT_STATE_HIGH);
  * routine below.                                                                *
  *                                                                               *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+#define FORWARD 0;
+#define WALK    1;
+#define ROTATE  2;
+
+#define UP 1;
+#define DOWN 3;
+#define BACK 2;
+#define FORWARD 0;
 
 //Use these variables to set the demand of the speed controller
 bool use_speed_controller = true;
@@ -83,17 +91,17 @@ int COUNT = COUNTS_PER_MM * 72;
 int count = COUNT;
 int STATE;
 char SMALLEST;
-float direction;
+int FLAG = FORWARD;
+float dir;
 int condition_walk = 0;
 
-#define FORWARD 0;
-#define WALK    1;
-#define ROTATE  2;
 
-#define UP 0;
-#define DOWN 1;
-#define LEFT 2;
-#define RIGHT 3;
+char n_val;
+char s_val;
+char e_val;
+char w_val;
+
+
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
  * This setup() routine initialises all class instances above and peripherals.   *
  * It is recommended:                                                            *
@@ -199,7 +207,7 @@ void loop() {
   doMapping();
 
   //Serial.println(Pose.getThetaDegrees());
-  //wavefront();
+  wavefront();
   // Rotation
   
   delay(2);
@@ -227,6 +235,7 @@ void forward(){
     // Read map
     stop_speed();
 
+    
     STATE = WALK;
   }
   else{
@@ -241,41 +250,48 @@ void walk(){
 
   determine_angle();
 
+  Serial.print( n_val );
+  Serial.print(", ");
+  Serial.print( s_val );
+  Serial.print(", ");
+  Serial.print( w_val  );
+  Serial.print(", ");
+  Serial.println( e_val );
+
+  SMALLEST  = n_val;
+  dir = 0;
 
   
-
-
-    Serial.print( n_val );
-    Serial.print(", ");
-    Serial.print( s_val );
-    Serial.print(", ");
-    Serial.print( w_val  );
-    Serial.print(", ");
-    Serial.println( e_val );
-    
+  
   if( SMALLEST > s_val ){
-    Serial.println("hej");
+    Serial.println("s");
     SMALLEST = s_val;
-    direction  = 180 + Pose.getThetaDegrees();
-    //FLAG turned 180
+    dir  = 180 + Pose.getThetaDegrees();
+    
+    FLAG = BACK;
   }
   
   if( SMALLEST > w_val){
+    Serial.println("w");
     SMALLEST = w_val;
-    direction = 90 + Pose.getThetaDegrees();
-    //FLAG turned 90
+    dir = 90 + Pose.getThetaDegrees();
+    if(dir > 180 ){dir = 175;}
+    FLAG = UP;
   }
 
   if( SMALLEST > e_val){
+    Serial.println("e");
     SMALLEST = e_val;
-    direction = -90 + Pose.getThetaDegrees();
-    //FLAG turned -90
+    dir = -90 + Pose.getThetaDegrees();
+
+    FLAG = DOWN;
     
   }
 
-  Serial.println(direction);
+  Serial.print("Direction: ");
+  Serial.println(dir);
 
-  if(direction == 0){
+  if(dir == 0){
     Serial.println("FORWARD");
     STATE = FORWARD;
   }else{
@@ -290,66 +306,75 @@ int determine_angle(){
   int x_index = Map.poseToIndex(Pose.getX(), MAP_X, MAP_RESOLUTION);
   int y_index = Map.poseToIndex(Pose.getY(), MAP_Y, MAP_RESOLUTION);
 
-  int n  = (char) EEPROM.read((x_index * MAP_RESOLUTION)       + (y_index + 1));
-  int s  = (char) EEPROM.read((x_index * MAP_RESOLUTION)       + (y_index - 1));
-  int w  = (char) EEPROM.read(((x_index - 1) * MAP_RESOLUTION) + y_index); 
-  int e  = (char) EEPROM.read(((x_index + 1) * MAP_RESOLUTION) + y_index); 
+  char n  = (char) EEPROM.read( (x_index * MAP_RESOLUTION)       + (y_index + 1) );
+  char s  = (char) EEPROM.read( (x_index * MAP_RESOLUTION)       + (y_index - 1) );
+  char w  = (char) EEPROM.read( ((x_index - 1) * MAP_RESOLUTION) + y_index ); 
+  char e  = (char) EEPROM.read( ((x_index + 1) * MAP_RESOLUTION) + y_index ); 
 
   
-  // -> -> -> -> -> -> -> -> -> -> -> -> 
+  
   switch (FLAG){
-    case 0: char w_val  =  n;
-            char e_val  =  s;
-            char s_val  =  w;
-            char n_val  =  e;
+    // -> -> -> -> -> -> -> -> -> -> -> -> 
+    case 0: w_val  =  n;
+            e_val  =  s;
+            s_val  =  w;
+            n_val  =  e;
+            Serial.println("forward");
             break;
             
-    case 1: char w_val  =  ;
-            char e_val  =  ;
-            char s_val  =  ;
-            char n_val  =  ;
+    // UP UP UP UP UP UP UP UP UP UP UP UP 
+    case 1: w_val  =  w;
+            e_val  =  e;
+            s_val  =  s;
+            n_val  =  n;
+            Serial.println("up");
             break;
-
-    case 2: char w_val  =  ;
-            char e_val  =  ;
-            char s_val  =  ;
-            char n_val  =  ;
+            
+    // <- <- <- <- <- <- <- <- <- <- <- <-
+    case 2: w_val  =  s;
+            e_val  =  n;
+            s_val  =  e;
+            n_val  =  w;
+            Serial.println("back");
             break;
-    case 3: char w_val  =  ;
-            char e_val  =  ;
-            char s_val  =  ;
-            char n_val  =  ;
+    
+    // DN DN DN DN DN DN DN DN DN DN DN DN
+    case 3: w_val  =  e;
+            e_val  =  w;
+            s_val  =  n;
+            n_val  =  s;
+            Serial.println("down");
             break;
     default:  Serial.println("ERROR");
-    
   }
-
   
-
-  
-  SMALLEST  = n_val;
-  direction = 0;
   
 
 }
 
 void rotate() {
 //  int condition;
-//  if(direction < 0){
+//  if(dir < 0){
 //    
 //  }
 
-  int condition = (direction - Pose.getThetaDegrees() ) < 0;
-
+  Serial.print("Theta: ");
+  Serial.println(Pose.getThetaDegrees());
+  int condition;
+  if (dir > 0){
+    condition = (dir - Pose.getThetaDegrees() ) <= 0;
+  }else{
+    condition =  (Pose.getThetaDegrees() - dir  ) <= 0;
+  }
   if (condition) {
-    Serial.println("finished");
+    Serial.println("Rotate finished");
     count = right_encoder_count + COUNT;
     STATE = FORWARD;
     //STATE = WALK;
     
   } else {
     //float output = HeadingControl.update(angle, Pose.getThetaRadians() ); // use for more accuracy
-    float demand = -15;
+    float demand = -10;
 
     left_speed_demand = demand;
     right_speed_demand = -demand;
