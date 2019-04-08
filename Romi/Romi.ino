@@ -94,6 +94,7 @@ char SMALLEST;
 int FLAG = FORWARD;
 float dir;
 int condition_walk = 0;
+int FLAG_SMALLEST;
 
 
 char n_val;
@@ -260,25 +261,14 @@ void walk(){
 
   SMALLEST  = n_val;
   dir = 0;  
+  FLAG_SMALLEST = 0; //0 -- north value is the smallest value
   
   if( SMALLEST > s_val ){
     Serial.println("s");
     SMALLEST = s_val;
     dir  = 180 + Pose.getThetaDegrees();
 
-    if(FLAG == 0){
-      FLAG = BACK;
-    }
-    else if(FLAG == 1){
-      FLAG = DOWN;
-    }
-    else if(FLAG == 3){
-      FLAG = UP;
-    }
-    else if(FLAG == 2){
-      FLAG = FORWARD;
-    }
-
+    FLAG_SMALLEST = 2; //2 -- south_value is the smallest value
   }
   
   if( SMALLEST > w_val){
@@ -286,21 +276,8 @@ void walk(){
     SMALLEST = w_val;
     dir = 90 + Pose.getThetaDegrees();
 //    if(dir > 180 ){dir = 175;}
-    
-    if(FLAG == 0){
-      FLAG = UP;
-    }
-    else if(FLAG == 1){
-      FLAG = BACK;
-    }
-    else if(FLAG == 3){
-      FLAG = FORWARD;
-    }
-    else if(FLAG == 2){
-      FLAG = DOWN;
-    }
 
-
+    FLAG_SMALLEST = 1; //1 -- west value is the smallest value 
   }
 
   if( SMALLEST > e_val){
@@ -308,6 +285,44 @@ void walk(){
     SMALLEST = e_val;
     dir = -90 + Pose.getThetaDegrees();
 
+    FLAG_SMALLEST = 3; //3 -- east value is the smallest value
+  }
+
+
+  if (FLAG_SMALLEST == 0){
+    
+  }else if(FLAG_SMALLEST == 1){
+
+    if(FLAG == 0){
+      FLAG = UP;
+    }
+    else if(FLAG == 1){
+      FLAG = BACK;
+    }
+    else if(FLAG == 3){
+      FLAG = FORWARD;
+    }
+    else if(FLAG == 2){
+      FLAG = DOWN;
+    }
+    
+  }else if(FLAG_SMALLEST == 2){
+
+    if(FLAG == 0){
+      FLAG = BACK;
+    }
+    else if(FLAG == 1){
+      FLAG = DOWN;
+    }
+    else if(FLAG == 3){
+      FLAG = UP;
+    }
+    else if(FLAG == 2){
+      FLAG = FORWARD;
+    }
+    
+  }else if(FLAG_SMALLEST == 3){
+
     if(FLAG == 0){
       FLAG = DOWN;
     }
@@ -320,8 +335,6 @@ void walk(){
     else if(FLAG == 2){
       FLAG = UP;
     }
-
-
     
   }
 
