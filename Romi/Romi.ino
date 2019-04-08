@@ -239,7 +239,7 @@ void forward(){
     STATE = WALK;
   }
   else{
-    int demand = 15;
+    int demand = 10;
     
     left_speed_demand = demand;
     right_speed_demand = demand;
@@ -261,7 +261,7 @@ void walk(){
   SMALLEST  = n_val;
   dir = 0;
 
-  
+  FLAG = 0;
   
   if( SMALLEST > s_val ){
     Serial.println("s");
@@ -366,6 +366,7 @@ void rotate() {
   }else{
     condition =  (Pose.getThetaDegrees() - dir  ) <= 0;
   }
+  
   if (condition) {
     Serial.println("Rotate finished");
     count = right_encoder_count + COUNT;
