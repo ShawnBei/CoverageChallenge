@@ -70,14 +70,19 @@ Pushbutton    ButtonB( BUTTON_B, DEFAULT_STATE_HIGH);
  * routine below.                                                                *
  *                                                                               *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-#define FORWARD 0;
-#define WALK    1;
-#define ROTATE  2;
+#define FORWARD 0
+#define WALK    1
+#define ROTATE  2
 
-#define UP 1;
-#define DOWN 3;
-#define BACK 2;
-//#define FORWARD 0;
+#define UP      1
+#define DOWN    3
+#define BACK    2
+//#define FORWARD 0
+
+#define NORTH   0
+#define SOUTH   1
+#define WEST    2
+#define EAST    3
 
 //Use these variables to set the demand of the speed controller
 bool use_speed_controller = true;
@@ -261,14 +266,14 @@ void walk(){
 
   SMALLEST  = n_val;
   dir = 0;  
-  FLAG_SMALLEST = 0; //0 -- north value is the smallest value
+  FLAG_SMALLEST = NORTH; 
   
   if( SMALLEST > s_val ){
     Serial.println("s");
     SMALLEST = s_val;
     dir  = 180 + Pose.getThetaDegrees();
 
-    FLAG_SMALLEST = 2; //2 -- south_value is the smallest value
+    FLAG_SMALLEST = SOUTH; 
   }
   
   if( SMALLEST > w_val){
@@ -277,7 +282,7 @@ void walk(){
     dir = 90 + Pose.getThetaDegrees();
 //    if(dir > 180 ){dir = 175;}
 
-    FLAG_SMALLEST = 1; //1 -- west value is the smallest value 
+    FLAG_SMALLEST = WEST; 
   }
 
   if( SMALLEST > e_val){
@@ -285,54 +290,60 @@ void walk(){
     SMALLEST = e_val;
     dir = -90 + Pose.getThetaDegrees();
 
-    FLAG_SMALLEST = 3; //3 -- east value is the smallest value
+    FLAG_SMALLEST = EAST; 
   }
+  
+/*
+ * FLAG is the heading direction of Romi
+ * 
+ */
 
+  if (FLAG_SMALLEST == NORTH){ //turn North/go forward
 
-  if (FLAG_SMALLEST == 0){
+    //do nothing
     
-  }else if(FLAG_SMALLEST == 1){
-
-    if(FLAG == 0){
+  }else if(FLAG_SMALLEST == SOUTH){ //turn South/back
+    
+    if(FLAG == FORWARD){
+      FLAG = BACK;
+    }
+    else if(FLAG == UP){
+      FLAG = DOWN;
+    }
+    else if(FLAG == DOWN){
       FLAG = UP;
     }
-    else if(FLAG == 1){
-      FLAG = BACK;
-    }
-    else if(FLAG == 3){
+    else if(FLAG == BACK){
       FLAG = FORWARD;
     }
-    else if(FLAG == 2){
-      FLAG = DOWN;
-    }
-    
-  }else if(FLAG_SMALLEST == 2){
 
-    if(FLAG == 0){
-      FLAG = BACK;
-    }
-    else if(FLAG == 1){
-      FLAG = DOWN;
-    }
-    else if(FLAG == 3){
+  }else if(FLAG_SMALLEST == WEST){ //turn West/left
+
+    if(FLAG == FORWARD){
       FLAG = UP;
     }
-    else if(FLAG == 2){
-      FLAG = FORWARD;
-    }
-    
-  }else if(FLAG_SMALLEST == 3){
-
-    if(FLAG == 0){
-      FLAG = DOWN;
-    }
-    else if(FLAG == 1){
-      FLAG = FORWARD;
-    }
-    else if(FLAG == 3){
+    else if(FLAG == UP){
       FLAG = BACK;
     }
-    else if(FLAG == 2){
+    else if(FLAG == DOWN){
+      FLAG = FORWARD;
+    }
+    else if(FLAG == BACK){
+      FLAG = DOWN;
+    }
+    
+  }else if(FLAG_SMALLEST == EAST){ //turn East/right
+
+    if(FLAG == FORWARD){
+      FLAG = DOWN;
+    }
+    else if(FLAG == UP){
+      FLAG = FORWARD;
+    }
+    else if(FLAG == DOWN){
+      FLAG = BACK;
+    }
+    else if(FLAG == BACK){
       FLAG = UP;
     }
     
