@@ -77,7 +77,7 @@ Pushbutton    ButtonB( BUTTON_B, DEFAULT_STATE_HIGH);
 #define UP 1;
 #define DOWN 3;
 #define BACK 2;
-#define FORWARD 0;
+//#define FORWARD 0;
 
 //Use these variables to set the demand of the speed controller
 bool use_speed_controller = true;
@@ -259,24 +259,48 @@ void walk(){
   Serial.println( e_val );
 
   SMALLEST  = n_val;
-  dir = 0;
-
-  FLAG = 0;
+  dir = 0;  
   
   if( SMALLEST > s_val ){
     Serial.println("s");
     SMALLEST = s_val;
     dir  = 180 + Pose.getThetaDegrees();
-    
-    FLAG = BACK;
+
+    if(FLAG == 0){
+      FLAG = BACK;
+    }
+    else if(FLAG == 1){
+      FLAG = DOWN;
+    }
+    else if(FLAG == 3){
+      FLAG = UP;
+    }
+    else if(FLAG == 2){
+      FLAG = FORWARD;
+    }
+
   }
   
   if( SMALLEST > w_val){
     Serial.println("w");
     SMALLEST = w_val;
     dir = 90 + Pose.getThetaDegrees();
-    if(dir > 180 ){dir = 175;}
-    FLAG = UP;
+//    if(dir > 180 ){dir = 175;}
+    
+    if(FLAG == 0){
+      FLAG = UP;
+    }
+    else if(FLAG == 1){
+      FLAG = BACK;
+    }
+    else if(FLAG == 3){
+      FLAG = FORWARD;
+    }
+    else if(FLAG == 2){
+      FLAG = DOWN;
+    }
+
+
   }
 
   if( SMALLEST > e_val){
@@ -284,7 +308,20 @@ void walk(){
     SMALLEST = e_val;
     dir = -90 + Pose.getThetaDegrees();
 
-    FLAG = DOWN;
+    if(FLAG == 0){
+      FLAG = DOWN;
+    }
+    else if(FLAG == 1){
+      FLAG = FORWARD;
+    }
+    else if(FLAG == 3){
+      FLAG = BACK;
+    }
+    else if(FLAG == 2){
+      FLAG = UP;
+    }
+
+
     
   }
 
@@ -294,6 +331,7 @@ void walk(){
   if(dir == 0){
     Serial.println("FORWARD");
     STATE = FORWARD;
+    count = right_encoder_count + COUNT;
   }else{
     // ROTATE
     Serial.println("ROTATE");
@@ -478,31 +516,31 @@ void doMapping() {
 
   // Check RFID scanner.
   // Look inside RF_interface.h for more info.
-  if( checkForRFID() ) {
-
-    // Add card to map encoding.  
-    Map.updateMapFeature( (byte)'R', Pose.getY(), Pose.getX() );
-
-    // you can check the position reference and
-    // bearing information of the RFID Card in 
-    // the following way:
-    // serialToBearing( rfid.serNum[0] );
-    // serialToXPos( rfid.serNum[0] );
-    // serialToYPos( rfid.serNum[0] );
-    //
-    // Note, that, you will need to set the x,y 
-    // and bearing information in rfid.h for your
-    // experiment setup.  For the experiment days,
-    // we will tell you the serial number and x y 
-    // bearing information for the cards in use.  
-    
-  } 
+//  if( checkForRFID() ) {
+//
+//    // Add card to map encoding.  
+//    Map.updateMapFeature( (byte)'R', Pose.getY(), Pose.getX() );
+//
+//    // you can check the position reference and
+//    // bearing information of the RFID Card in 
+//    // the following way:
+//    // serialToBearing( rfid.serNum[0] );
+//    // serialToXPos( rfid.serNum[0] );
+//    // serialToYPos( rfid.serNum[0] );
+//    //
+//    // Note, that, you will need to set the x,y 
+//    // and bearing information in rfid.h for your
+//    // experiment setup.  For the experiment days,
+//    // we will tell you the serial number and x y 
+//    // bearing information for the cards in use.  
+//    
+//  } 
 
   // Basic uncalibrated check for a line.
   // Students can do better than this after CW1 ;)
-  if( LineCentre.readRaw() > 580 ) {
-      Map.updateMapFeature( (byte)'L', Pose.getY(), Pose.getX() );
-  } 
+//  if( LineCentre.readRaw() > 580 ) {
+//      Map.updateMapFeature( (byte)'L', Pose.getY(), Pose.getX() );
+//  } 
 
   // 
   

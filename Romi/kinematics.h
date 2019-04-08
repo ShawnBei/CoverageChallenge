@@ -70,14 +70,14 @@ void Kinematics::update()
     
 
     //Wrap theta between -PI and PI.
-    if (theta > PI)
-    {
-        theta -=2*PI;
-    }
-    else if(theta < -PI)
-    {
-        theta += 2*PI;
-    } 
+//    if (theta > PI)
+//    {
+//        theta -=2*PI;
+//    }
+//    else if(theta < -PI)
+//    {
+//        theta += 2*PI;
+//    } 
 
     last_theta = theta;
 
