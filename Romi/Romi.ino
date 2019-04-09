@@ -55,7 +55,7 @@ Motor         RightMotor(MOTOR_PWM_R, MOTOR_DIR_R);
 //These work for our Romi - We strongly suggest you perform your own tuning
 PID           LeftSpeedControl( 3.5, 20.9, 0.04 );
 PID           RightSpeedControl( 3.5, 20.9, 0.04 );
-PID           HeadingControl( 1.5, 0, 0.001 );
+PID           HeadingControl( 1, 0, 0.001 );
 
 
 
@@ -128,6 +128,8 @@ void setup()
   //Set speed control maximum outputs to match motor
   LeftSpeedControl.setMax(100);
   RightSpeedControl.setMax(100);
+
+  HeadingControl.setMax(7);
 
   // For this example, we'll calibrate only the 
   // centre sensor.  You may wish to use more.
@@ -415,34 +417,52 @@ int determine_angle(){
 }
 
 void rotate() {
-//  int condition;
-//  if(dir < 0){
-//    
-//  }
 
   Serial.print("Theta: ");
   Serial.println(Pose.getThetaDegrees());
-  int condition;
-  if (dir > 0){
-    condition = (dir - Pose.getThetaDegrees() ) <= 0;
-  }else{
-    condition =  (Pose.getThetaDegrees() - dir  ) <= 0;
-  }
+
+  float output = HeadingControl.update( dir, Pose.getThetaDegrees() ); 
   
-  if (condition) {
+//  float condition = ;
+
+//  if (dir > 0){
+//    condition = (dir - Pose.getThetaDegrees() ) <= 0;
+//  }else{
+//    condition =  (Pose.getThetaDegrees() - dir  ) <= 0;
+//  }
+
+
+  float error = HeadingControl.getError();
+
+  if (error < 5){
+    
     Serial.println("Rotate finished");
+    stop_speed();
+    delay(100);
     count = right_encoder_count + COUNT;
     STATE = FORWARD;
     //STATE = WALK;
     
   } else {
-    //float output = HeadingControl.update(angle, Pose.getThetaRadians() ); // use for more accuracy
-    float demand = -10;
 
-    left_speed_demand = demand;
-    right_speed_demand = -demand;
-    
+    left_speed_demand = -error;
+    right_speed_demand = error;
   }
+  
+//  if (condition) {
+//    Serial.println("Rotate finished");
+//    count = right_encoder_count + COUNT;
+//    STATE = FORWARD;
+//    //STATE = WALK;
+//    
+//  } else {
+//    
+//    float demand = -10;
+//
+//    left_speed_demand = demand;
+//    right_speed_demand = -demand;
+//    
+//  }
 }
 
 //int Mapper::poseToIndex(int x, int map_size, int resolution)
