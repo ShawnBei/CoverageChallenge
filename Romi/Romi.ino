@@ -267,13 +267,13 @@ void walk(){
   Serial.println( e_val );
 
   SMALLEST  = n_val;
-  dir = 0;  
   FLAG_SMALLEST = NORTH; 
+  //  dir = 0;  
   
   if( SMALLEST > s_val ){
     Serial.println("s");
     SMALLEST = s_val;
-    dir  = 180 + Pose.getThetaDegrees();
+//    dir  = 180 + Pose.getThetaDegrees();
 
     FLAG_SMALLEST = SOUTH; 
   }
@@ -281,7 +281,7 @@ void walk(){
   if( SMALLEST > w_val){
     Serial.println("w");
     SMALLEST = w_val;
-    dir = 90 + Pose.getThetaDegrees();
+//    dir = 90 + Pose.getThetaDegrees();
 //    if(dir > 180 ){dir = 175;}
 
     FLAG_SMALLEST = WEST; 
@@ -290,7 +290,7 @@ void walk(){
   if( SMALLEST > e_val){
     Serial.println("e");
     SMALLEST = e_val;
-    dir = -90 + Pose.getThetaDegrees();
+//    dir = -90 + Pose.getThetaDegrees();
 
     FLAG_SMALLEST = EAST; 
   }
@@ -302,51 +302,74 @@ void walk(){
 
   if (FLAG_SMALLEST == NORTH){ //turn North/go forward
 
-    //do nothing
+    if(FLAG == FORWARD){
+      dir = 0;
+    }
+    else if(FLAG == UP){
+      dir = 90;
+    }
+    else if(FLAG == DOWN){
+      dir = -90;
+    }
+    else if(FLAG == BACK){
+      dir = 180;
+    }
     
   }else if(FLAG_SMALLEST == SOUTH){ //turn South/back
     
     if(FLAG == FORWARD){
       FLAG = BACK;
+      dir = 180;
     }
     else if(FLAG == UP){
       FLAG = DOWN;
+      dir = -90;
     }
     else if(FLAG == DOWN){
       FLAG = UP;
+      dir = 90;
     }
     else if(FLAG == BACK){
       FLAG = FORWARD;
+      dir = 0;
     }
 
   }else if(FLAG_SMALLEST == WEST){ //turn West/left
 
     if(FLAG == FORWARD){
       FLAG = UP;
+      dir = 90;
     }
     else if(FLAG == UP){
       FLAG = BACK;
+      dir = 180;
     }
     else if(FLAG == DOWN){
       FLAG = FORWARD;
+      dir = 0;
     }
     else if(FLAG == BACK){
       FLAG = DOWN;
+      dir = -90;
     }
     
   }else if(FLAG_SMALLEST == EAST){ //turn East/right
 
     if(FLAG == FORWARD){
       FLAG = DOWN;
+      dir = -90;
     }
     else if(FLAG == UP){
       FLAG = FORWARD;
+      dir = 0;
     }
     else if(FLAG == DOWN){
       FLAG = BACK;
+      dir = 180;
     }
     else if(FLAG == BACK){
       FLAG = UP;
+      dir = 90; 
     }
     
   }
@@ -354,7 +377,7 @@ void walk(){
   Serial.print("Direction: ");
   Serial.println(dir);
 
-  if(dir == 0){
+  if(FLAG_SMALLEST == NORTH){
     Serial.println("FORWARD");
     STATE = FORWARD;
     count = right_encoder_count + COUNT;
@@ -445,8 +468,8 @@ void rotate() {
     
   } else {
 
-    left_speed_demand = -error;
-    right_speed_demand = error;
+    left_speed_demand = -output;
+    right_speed_demand = output;
   }
   
 //  if (condition) {
