@@ -56,6 +56,7 @@ Motor         RightMotor(MOTOR_PWM_R, MOTOR_DIR_R);
 PID           LeftSpeedControl( 3.5, 20.9, 0.04 );
 PID           RightSpeedControl( 3.5, 20.9, 0.04 );
 PID           HeadingControl( 1, 0, 0.001 );
+PID           ForwardHeadingControl( 5, 0, 0 );
 
 
 
@@ -100,6 +101,8 @@ int FLAG = FORWARD;
 float dir;
 int condition_walk = 0;
 int FLAG_SMALLEST;
+
+int MINUS90;
 
 
 char n_val;
@@ -215,6 +218,7 @@ void loop() {
   doMapping();
 
   //Serial.println(Pose.getThetaDegrees());
+  //Serial.println(right_encoder_count);
   wavefront();
   // Rotation
   
@@ -238,6 +242,10 @@ void wavefront(){
 
 void forward(){
   int condition = (count - right_encoder_count) < 0;
+  float forward_heading_output  = ForwardHeadingControl.update(dir, Pose.getThetaDegrees());
+  
+  Serial.print(", Degreesssssss: ");
+  Serial.println(Pose.getThetaDegrees() );
 
   if(condition){
     // Read map
@@ -248,9 +256,17 @@ void forward(){
   }
   else{
     int demand = 10;
+      Serial.print("Direction: ");
+  Serial.print( dir );
+  Serial.print(", Degree: ");
+  Serial.print(Pose.getThetaDegrees() );
+  Serial.print(", output:  ");
+  Serial.print( forward_heading_output );
     
-    left_speed_demand = demand;
-    right_speed_demand = demand;
+    left_speed_demand = demand - forward_heading_output;
+    right_speed_demand = demand + forward_heading_output;
+    Serial.print(", speed: ");
+    Serial.println( left_speed_demand );
   }
 }
 
@@ -269,7 +285,7 @@ void walk(){
   SMALLEST  = n_val;
   FLAG_SMALLEST = NORTH; 
   //  dir = 0;  
-  
+  MINUS90 = 0;
   if( SMALLEST > s_val ){
     Serial.println("s");
     SMALLEST = s_val;
@@ -300,6 +316,8 @@ void walk(){
  * 
  */
 
+
+  
   if (FLAG_SMALLEST == NORTH){ //turn North/go forward
 
     if(FLAG == FORWARD){
@@ -313,13 +331,16 @@ void walk(){
     }
     else if(FLAG == BACK){
       dir = 180;
+      //BUFFER
     }
-    
+
+  //TURN 180 DEGREE - CONDITION NOT MET
   }else if(FLAG_SMALLEST == SOUTH){ //turn South/back
     
     if(FLAG == FORWARD){
       FLAG = BACK;
       dir = 180;
+      //BUFFER
     }
     else if(FLAG == UP){
       FLAG = DOWN;
@@ -351,6 +372,7 @@ void walk(){
     else if(FLAG == BACK){
       FLAG = DOWN;
       dir = -90;
+      MINUS90 = 1;
     }
     
   }else if(FLAG_SMALLEST == EAST){ //turn East/right
@@ -440,11 +462,19 @@ int determine_angle(){
 }
 
 void rotate() {
-
+  Pose.update();
   Serial.print("Theta: ");
   Serial.println(Pose.getThetaDegrees());
 
-  float output = HeadingControl.update( dir, Pose.getThetaDegrees() ); 
+  float theta = Pose.getThetaDegrees();
+  float output;
+  
+  if (MINUS90 == 1 and 185 > theta and theta > 175 ){
+    output = HeadingControl.update( dir, - theta); 
+  }else{
+    output = HeadingControl.update( dir, theta );
+  }
+  
   
 //  float condition = ;
 
@@ -458,10 +488,11 @@ void rotate() {
   float error = HeadingControl.getError();
 
   if (error < 5){
-    
-    Serial.println("Rotate finished");
+    Serial.print("Rotation finished: ");
+    Serial.println(Pose.getThetaDegrees());
     stop_speed();
     delay(100);
+    
     count = right_encoder_count + COUNT;
     STATE = FORWARD;
     //STATE = WALK;
