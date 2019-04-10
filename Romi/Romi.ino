@@ -56,7 +56,7 @@ Motor         RightMotor(MOTOR_PWM_R, MOTOR_DIR_R);
 PID           LeftSpeedControl( 3.5, 20.9, 0.04 );
 PID           RightSpeedControl( 3.5, 20.9, 0.04 );
 PID           HeadingControl( 1, 0, 0.001 );
-PID           ForwardHeadingControl( 5, 0, 0 );
+PID           ForwardHeadingControl( 3, 0, 0 );
 
 
 //PID           RightSpeedControl( 3.5, 20.9, 0.04 );
@@ -224,55 +224,41 @@ void wavefront(){
 }
 
 void forward(){
-  Serial.print(", right counts: ");
-  Serial.print(right_encoder_count);
-  Serial.print(", left counts: ");
-  Serial.println(left_encoder_count);
+  
   int condition = (count - right_encoder_count) < 0;
   float forward_heading_output  = ForwardHeadingControl.update(dir, Pose.getThetaDegrees());
 
   if(condition){
-    Serial.print(", right counts: ");
-    Serial.print(right_encoder_count);
-    Serial.print(", left counts: ");
-    Serial.println(left_encoder_count);
     stop_speed();
     STATE = WALK;
-    Serial.print(", afterright counts: ");
-    Serial.print(right_encoder_count);
-    Serial.print(", afterleft counts: ");
-    Serial.println(left_encoder_count);
     
   }
   else{
     int demand = 12;
-    Serial.print("Direction: ");
-    Serial.print( dir );
-    Serial.print(", Degree: ");
-    Serial.print(Pose.getThetaDegrees() );
-    Serial.print(", output:  ");
-    Serial.print( forward_heading_output );
-    
     left_speed_demand = demand - forward_heading_output;
     right_speed_demand = demand + forward_heading_output;
-    Serial.print(", left speed: ");
-    Serial.print( left_speed_demand );
-    Serial.print(", right speed: ");
-    Serial.println( right_speed_demand );
+    
   }
+  Serial.print("Direction: ");
+  Serial.print( dir );
+  Serial.print(", Degree: ");
+  Serial.print(Pose.getThetaDegrees() );
+  Serial.print(", output:  ");
+  Serial.print( forward_heading_output );
+  Serial.print(", left speed: ");
+  Serial.print( left_speed_demand );
+  Serial.print(", right speed: ");
+  Serial.print( forward_heading_output );
+  Serial.print(", LEFT ENCODER: ");
+  Serial.print( left_speed_demand );
+  Serial.print(", RIGHT ENCODER: ");
+  Serial.println( right_encoder_count );
+  
 }
 
 void walk(){
 
   getReadings();
-
-  Serial.print( n_val );
-  Serial.print(", ");
-  Serial.print( s_val );
-  Serial.print(", ");
-  Serial.print( w_val  );
-  Serial.print(", ");
-  Serial.println( e_val );
 
   SMALLEST  = n_val;
   FLAG_SMALLEST = NORTH; 
@@ -378,9 +364,6 @@ void walk(){
     }
   }
   
-  Serial.print("Direction: ");
-  Serial.println(dir);
-
   if(FLAG_SMALLEST == NORTH){
     Serial.println("FORWARD");
     STATE = FORWARD;
@@ -390,7 +373,22 @@ void walk(){
     Serial.println("ROTATE");
     STATE = ROTATE;
   }
-  
+
+  Serial.print(", FLAG_SMALLEST:  ");
+  Serial.print( FLAG_SMALLEST );
+  Serial.print(", FLAG: ");
+  Serial.print( FLAG );
+  Serial.print(", DIR: ");
+  Serial.print( dir  );
+  Serial.print("   ");
+  Serial.print(", North: ");
+  Serial.print( n_val );
+  Serial.print(", South: ");
+  Serial.print( s_val );
+  Serial.print(", West: ");
+  Serial.print( w_val  );
+  Serial.print(", East: ");
+  Serial.println( e_val );
 }
 
 int getReadings(){
