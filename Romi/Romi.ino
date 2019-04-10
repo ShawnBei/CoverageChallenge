@@ -94,7 +94,7 @@ int STATE;
 
 // Going forward
 int COUNT = COUNTS_PER_MM * 72;
-int count = COUNT;
+long count = COUNT;
 
 // Determine direction
 char SMALLEST;
@@ -243,16 +243,18 @@ void forward(){
   Serial.print( dir );
   Serial.print(", Degree: ");
   Serial.print(Pose.getThetaDegrees() );
-  Serial.print(", output:  ");
+  Serial.print(", Heading output:  ");
   Serial.print( forward_heading_output );
   Serial.print(", left speed: ");
   Serial.print( left_speed_demand );
   Serial.print(", right speed: ");
-  Serial.print( forward_heading_output );
+  Serial.print( right_speed_demand );
   Serial.print(", LEFT ENCODER: ");
-  Serial.print( left_speed_demand );
+  Serial.print( left_encoder_count );
   Serial.print(", RIGHT ENCODER: ");
-  Serial.println( right_encoder_count );
+  Serial.print( right_encoder_count );
+  Serial.print(", count condition: ");
+  Serial.println( count );
   
 }
 
