@@ -11,6 +11,9 @@ class SharpIR
 
     private:
         byte pin;
+        // IR sensor variables
+        float a = 0.15;
+        float past_distance;
 };
 
 SharpIR::SharpIR(byte _pin)
@@ -34,13 +37,17 @@ int SharpIR::getDistanceRaw()
 float SharpIR::getDistanceInMM()
 {
     
-    float distance = (float)analogRead( pin );
+    float distance = (float) analogRead( pin );
     
-    // map this to 0 : 5v range.
-    distance *= 0.0048;
+    // map this to 0 :x 5v range.
+    //distance *= 0.0048;
 
-    const float exponent = (1/-0.616);
-    distance = pow( ( distance / 12.494 ), exponent);
+    const float exponent = (1/-0.643);
+    distance = pow( ( distance / 2538 ), exponent);
+
+    //Filtering
+    distance = (a * distance) + ((1 - a) * past_distance);
+    past_distance = distance;
        
     return distance;
 }

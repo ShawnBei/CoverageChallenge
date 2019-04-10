@@ -43,7 +43,13 @@ LineSensor    LineLeft(LINE_LEFT_PIN); //Left line sensor
 LineSensor    LineCentre(LINE_CENTRE_PIN); //Centre line sensor
 LineSensor    LineRight(LINE_RIGHT_PIN); //Right line sensor
 
-SharpIR       DistanceSensor(SHARP_IR_PIN); //Distance sensor
+#define SHARP_IR_PIN A0 //Pin for the IR Distance sensor
+#define SHARP_IR_PIN_RIGHT A5 //Pin for the IR Distance sensor
+ //Pin for the IR Distance sensor
+
+SharpIR       LeftIR("A12"); //Distance sensor
+SharpIR       MidIR(SHARP_IR_PIN); //Distance sensor
+SharpIR       RightIR(SHARP_IR_PIN_RIGHT); //Distance sensor
 
 Imu           Imu;
 
@@ -179,7 +185,7 @@ void setup()
   Serial.println("Map Erased - Mapping Started");
 
   //Draw map
-  Map.initMap();
+  //Map.initMap();
 
   LeftSpeedControl.reset();
   RightSpeedControl.reset();
@@ -202,10 +208,9 @@ void loop() {
   Pose.update();
 
   //doMovement();
-
   doMapping();
   
-  wavefront();
+  //wavefront();
   
   delay(2);
 }
@@ -441,10 +446,6 @@ int getReadings(){
 }
 
 void rotate() {
-  Pose.update();
-  Serial.print("Theta: ");
-  Serial.println(Pose.getThetaDegrees());
-
   float theta = Pose.getThetaDegrees();
   float output;
   
@@ -500,7 +501,7 @@ void doMovement() {
 
   // Check if we are about to collide.  If so,
   // zero forward speed
-  if( DistanceSensor.getDistanceRaw() > 450 ) {
+  if( MidIR.getDistanceRaw() > 450 ) {
     forward_bias = 0;
   } else {
     forward_bias = 5;
@@ -529,16 +530,34 @@ void doMapping() {
   
   //explored areas
   Map.updateMapFeature( (byte)'=', Pose.getY(), Pose.getX() );
+
+  float left_distance  = LeftIR.getDistanceInMM();
+  float distance   = MidIR.getDistanceInMM(); //mid_distance
+  float right_distance = RightIR.getDistanceInMM();
+
+  Serial.print(",  Right: ");
+  Serial.print(right_distance);
+  Serial.print(",  Left: ");
+  Serial.println(left_distance);
   
-  float distance = DistanceSensor.getDistanceInMM();
-  if( distance < 40 && distance > 12 ) {
-    
+  if ( 15.1 > distance and distance > 15){
+//    Serial.print("DIST: ");
+//    Serial.print(distance);
+//    Serial.print(",  Distance12: ");
+//    Serial.println(right_encoder_count);
+  }
+  
+  if( distance < 16 && distance > 11 ) { // 12 previously
+//    Serial.print("DIST: ");
+//    Serial.print(distance);
+//    Serial.print(", Distance8: ");
+//    Serial.println(right_encoder_count);
     distance += 80;
     
     // Here we calculate the actual position of the obstacle we have detected
     float projected_x = Pose.getX() + ( distance * cos( Pose.getThetaRadians() ) );
     float projected_y = Pose.getY() + ( distance * sin( Pose.getThetaRadians() ) );
-    //Map.updateMapFeature( (byte)'O', projected_y, projected_x );
+    Map.updateMapFeature( (byte)'O', projected_y, projected_x );
   } 
 }
 
