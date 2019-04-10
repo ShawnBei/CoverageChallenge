@@ -204,9 +204,6 @@ void loop() {
   //doMovement();
 
   doMapping();
-
-  Serial.print("LOOP THETA: ");
-  Serial.println(Pose.getThetaDegrees());
   
   wavefront();
   
@@ -235,8 +232,16 @@ void forward(){
   float forward_heading_output  = ForwardHeadingControl.update(dir, Pose.getThetaDegrees());
 
   if(condition){
+    Serial.print(", right counts: ");
+    Serial.print(right_encoder_count);
+    Serial.print(", left counts: ");
+    Serial.println(left_encoder_count);
     stop_speed();
     STATE = WALK;
+    Serial.print(", afterright counts: ");
+    Serial.print(right_encoder_count);
+    Serial.print(", afterleft counts: ");
+    Serial.println(left_encoder_count);
     
   }
   else{
@@ -451,14 +456,18 @@ void rotate() {
   
   float error = HeadingControl.getError();
 
-  if (error < 5){
+  if (error < 2){
     Pose.update();
     Serial.print(", right counts: ");
     Serial.print(right_encoder_count);
     Serial.print(", left counts: ");
     Serial.println(left_encoder_count);
-    stop_speed();
-    delay(100);
+    //stop_speed();
+    //delay(100);
+    Serial.print(", afterright counts: ");
+    Serial.print(right_encoder_count);
+    Serial.print(", afterleft counts: ");
+    Serial.println(left_encoder_count);
     
     count = right_encoder_count + COUNT;
     STATE = FORWARD;
@@ -534,6 +543,6 @@ void doMapping() {
 }
 
 void stop_speed(){
-  left_speed_demand = 0;
-  right_speed_demand = 0;
+  analogWrite( MOTOR_PWM_R, 0 );
+  analogWrite( MOTOR_PWM_L, 0 );
 }
