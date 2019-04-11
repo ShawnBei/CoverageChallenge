@@ -6,6 +6,7 @@ const byte MAP_RESOLUTION = 25;
 const byte MAP_DEFAULT_FEATURE = '#';
 const int MAP_X=1800;
 const int MAP_Y=1800;
+const float GRID_DIST = 72;
 
 class Mapper
 {
@@ -13,6 +14,7 @@ class Mapper
         void resetMap();
         void printMap();
         void initMap();
+        void mapBuffer(float y, float x);
         void updateMapFeature(byte feature, int y, int x);
         void updateMapFeature(byte feature, float y, float x);
         
@@ -139,7 +141,21 @@ void Mapper::updateMapFeature(byte feature, int y, int x)
     {
         EEPROM.update(eeprom_address, feature);
     }
-        
+}
+
+void Mapper::mapBuffer(float y, float x){
+  
+  updateMapFeature((byte)'?', y + GRID_DIST, x + GRID_DIST);
+  updateMapFeature((byte)'?', y + GRID_DIST, x);
+  updateMapFeature((byte)'?', y, x + GRID_DIST);
+  
+  updateMapFeature((byte)'?', y - GRID_DIST, x - GRID_DIST);
+  updateMapFeature((byte)'?', y - GRID_DIST, x);
+  updateMapFeature((byte)'?', y, x - GRID_DIST);
+  
+  updateMapFeature((byte)'?', y - GRID_DIST, x + GRID_DIST);
+  updateMapFeature((byte)'?', y + GRID_DIST, x - GRID_DIST);
+
 
 }
 

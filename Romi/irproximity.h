@@ -8,11 +8,16 @@ class SharpIR
         int  getDistanceRaw();
         float  getDistanceInMM();
         void calibrate();
+        void setMax();
+        
 
     private:
         byte pin;
+        float new_max;
+        
         // IR sensor variables
         float a = 0.15;
+        float current_distance;
         float past_distance;
 };
 
@@ -43,12 +48,16 @@ float SharpIR::getDistanceInMM()
     //distance *= 0.0048;
 
     const float exponent = (1/-0.643);
-    distance = pow( ( distance / 2538 ), exponent);
+    current_distance = pow( ( distance / 2538 ), exponent);
+//    current_distance = 183959 * pow(distance, -1.537);
 
-    //Filtering
-//    distance = (a * distance) + ((1 - a) * past_distance);
-//    past_distance = distance;
-       
+    //Filtering 
+    current_distance = (a * current_distance) + ((1.0 - a) * past_distance);
+    past_distance = current_distance;
+    
+    past_distance = constrain(past_distance, 0, 100);
+    distance = constrain(current_distance, 0, 100);
+    
     return distance;
 }
 

@@ -532,37 +532,51 @@ void doMapping() {
   //explored areas
   Map.updateMapFeature( (byte)'=', Pose.getY(), Pose.getX() );
 
+
   float left_distance  = LeftIR.getDistanceInMM();
-  float distance   = MidIR.getDistanceInMM(); //mid_distance
+  float mid_distance   = MidIR.getDistanceInMM();
   float right_distance = RightIR.getDistanceInMM();
 
-  Serial.print("Right: ");
-  Serial.print(right_distance);
-  Serial.print(",  Left: ");
-  Serial.print(left_distance);
-  Serial.print(",  Middle: ");
-  Serial.println(distance);
-  
-  if ( 15.1 > distance and distance > 15){
-//    Serial.print("DIST: ");
-//    Serial.print(distance);
-//    Serial.print(",  Distance12: ");
-//    Serial.println(right_encoder_count);
-  }
-  
-  if( distance < 16 && distance > 11 ) { // 12 previously
-//    Serial.print("DIST: ");
-//    Serial.print(distance);
-//    Serial.print(", Distance8: ");
-//    Serial.println(right_encoder_count);
-    distance += 80;
+  Serial.print("Left: ");
+  Serial.print( left_distance );
+  Serial.print(", Mid ");
+  Serial.print(mid_distance);
+  Serial.print(", Right ");
+  Serial.println(right_distance);
+
+  if ( 30 > mid_distance and mid_distance > 15.2){
+    mid_distance += 80;
     
     // Here we calculate the actual position of the obstacle we have detected
-    float projected_x = Pose.getX() + ( distance * cos( Pose.getThetaRadians() ) );
-    float projected_y = Pose.getY() + ( distance * sin( Pose.getThetaRadians() ) );
+    float projected_x = Pose.getX() + ( mid_distance * cos( Pose.getThetaRadians()  ) );
+    float projected_y = Pose.getY() + ( mid_distance * sin( Pose.getThetaRadians() ) );
+    Map.updateMapFeature( (byte)'O', projected_y, projected_x ); 
+    Map.mapBuffer(projected_y, projected_x);
+  }
+
+  if ( 33 > left_distance and left_distance > 18.04){
+    left_distance += 80;
+    
+    // Here we calculate the actual position of the obstacle we have detected
+    float projected_x = Pose.getX() + ( left_distance * cos( Pose.getThetaRadians() + 0.602) );
+    float projected_y = Pose.getY() + ( left_distance * sin( Pose.getThetaRadians() + 0.602) );
     Map.updateMapFeature( (byte)'O', projected_y, projected_x );
-  } 
+    Map.mapBuffer(projected_y, projected_x);
+    
+  }
+  if ( 33 > right_distance and right_distance > 18.04){
+    right_distance += 80;
+    
+    // Here we calculate the actual position of the obstacle we have detected
+    float projected_x = Pose.getX() + ( right_distance * cos( Pose.getThetaRadians() - 0.5847) );
+    float projected_y = Pose.getY() + ( right_distance * sin( Pose.getThetaRadians() - 0.5847) ); 
+    Map.updateMapFeature( (byte)'O', projected_y , projected_x );
+    Map.mapBuffer(projected_y, projected_x);
+  }
+  Map.printMap();
+//  delay();
 }
+
 
 void stop_speed(){
   analogWrite( MOTOR_PWM_R, 0 );
