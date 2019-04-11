@@ -44,10 +44,11 @@ LineSensor    LineCentre(LINE_CENTRE_PIN); //Centre line sensor
 LineSensor    LineRight(LINE_RIGHT_PIN); //Right line sensor
 
 #define SHARP_IR_PIN A0 //Pin for the IR Distance sensor
-#define SHARP_IR_PIN_RIGHT A5 //Pin for the IR Distance sensor
+#define SHARP_IR_PIN_RIGHT A3 //Pin for the IR Distance sensor
+#define SHARP_IR_PIN_LEFT A4
  //Pin for the IR Distance sensor
 
-SharpIR       LeftIR("A12"); //Distance sensor
+SharpIR       LeftIR(SHARP_IR_PIN_LEFT); //Distance sensor
 SharpIR       MidIR(SHARP_IR_PIN); //Distance sensor
 SharpIR       RightIR(SHARP_IR_PIN_RIGHT); //Distance sensor
 
@@ -535,10 +536,12 @@ void doMapping() {
   float distance   = MidIR.getDistanceInMM(); //mid_distance
   float right_distance = RightIR.getDistanceInMM();
 
-  Serial.print(",  Right: ");
+  Serial.print("Right: ");
   Serial.print(right_distance);
   Serial.print(",  Left: ");
-  Serial.println(left_distance);
+  Serial.print(left_distance);
+  Serial.print(",  Middle: ");
+  Serial.println(distance);
   
   if ( 15.1 > distance and distance > 15){
 //    Serial.print("DIST: ");

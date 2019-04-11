@@ -46,8 +46,8 @@ float SharpIR::getDistanceInMM()
     distance = pow( ( distance / 2538 ), exponent);
 
     //Filtering
-    distance = (a * distance) + ((1 - a) * past_distance);
-    past_distance = distance;
+//    distance = (a * distance) + ((1 - a) * past_distance);
+//    past_distance = distance;
        
     return distance;
 }
