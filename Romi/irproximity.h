@@ -7,8 +7,9 @@ class SharpIR
         SharpIR(byte pin);
         int  getDistanceRaw();
         float  getDistanceInMM();
-        void calibrate();
+        int calibrate();
         void setMax();
+        void setAlpha(float alpha);
         
 
     private:
@@ -16,9 +17,10 @@ class SharpIR
         float new_max;
         
         // IR sensor variables
-        float a = 0.15;
+        float a = 0.2;
         float current_distance;
         float past_distance;
+        float calibrated_reading;
 };
 
 SharpIR::SharpIR(byte _pin)
@@ -31,7 +33,26 @@ int SharpIR::getDistanceRaw()
     return analogRead(pin);
 }
 
+//does it make sense to calibrate this way???
+//int SharpIR::calibrate()
+//{
+//  int sum;
+//  for(int i = 0; i < 100; i++){
+//    sum += getDistanceRaw();
+//  }
+//  calibrated_reading = sum / 100;
+//
+//  return 0;
+//}
 
+int SharpIR::calibrate()
+{
+  float dummy;
+  for(int i = 0; i < 50; i++){
+    dummy = getDistanceInMM();
+  }
+  return 0;
+}
 /*
  * This piece of code is quite crucial to mapping
  * obstacle distance accurately, so you are encouraged
@@ -42,7 +63,7 @@ int SharpIR::getDistanceRaw()
 float SharpIR::getDistanceInMM()
 {
     
-    float distance = (float) analogRead( pin );
+    float distance = (float) getDistanceRaw();
     
     // map this to 0 :x 5v range.
     //distance *= 0.0048;
@@ -57,9 +78,13 @@ float SharpIR::getDistanceInMM()
     
     past_distance = constrain(past_distance, 0, 100);
     distance = constrain(current_distance, 0, 100);
-    
-    return distance;
-}
 
+    // Convert to MM by multiplying with 10
+    return distance * 10;
+}
+void SharpIR::setAlpha(float alpha)
+{
+    a = alpha;
+}
 
 #endif

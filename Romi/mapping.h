@@ -14,12 +14,19 @@ class Mapper
         void resetMap();
         void printMap();
         void initMap();
+        
         void mapBuffer(float y, float x);
+        void mapBufferRight(float y, float x, int FLAG);
+        void mapBufferMid(float y, float x, int FLAG);
+        void mapBufferLeft(float y, float x, int FLAG);
+        
         void updateMapFeature(byte feature, int y, int x);
         void updateMapFeature(byte feature, float y, float x);
         
         int  indexToPose(int i, int map_size, int resolution);
         int  poseToIndex(int x, int map_size, int resolution);
+
+        
     
     private:
         int X_size;
@@ -158,6 +165,64 @@ void Mapper::mapBuffer(float y, float x){
 
 
 }
+//#define FORWARD 0
+//#define UP      1
+//#define DOWN    3
+//#define BACK    2
+
+void Mapper::mapBufferRight(float y, float x, int FLAG){
+  if (FLAG == 0){
+    updateMapFeature((byte)'?', y            , x - GRID_DIST);
+    updateMapFeature((byte)'?', y - GRID_DIST, x - GRID_DIST);
+    
+  }else if (FLAG == 1 ){
+    updateMapFeature((byte)'?', y + GRID_DIST, x            );
+    updateMapFeature((byte)'?', y + GRID_DIST, x - GRID_DIST);
+  }else if (FLAG == 3){
+    updateMapFeature((byte)'?', y - GRID_DIST, x + GRID_DIST);
+    updateMapFeature((byte)'?', y - GRID_DIST, x            );
+  }else if (FLAG == 2){
+    updateMapFeature((byte)'?', y            , x + GRID_DIST);
+    updateMapFeature((byte)'?', y - GRID_DIST, x + GRID_DIST);
+  }
+}
+
+void Mapper::mapBufferLeft(float y, float x, int FLAG){
+  if (FLAG == 0){
+    updateMapFeature((byte)'?', y            , x - GRID_DIST);
+    updateMapFeature((byte)'?', y + GRID_DIST, x - GRID_DIST);
+  }else if (FLAG == 1 ){
+    updateMapFeature((byte)'?', y + GRID_DIST, x            );
+    updateMapFeature((byte)'?', y + GRID_DIST, x + GRID_DIST);
+  }else if (FLAG == 3){
+    updateMapFeature((byte)'?', y - GRID_DIST, x - GRID_DIST);
+    updateMapFeature((byte)'?', y - GRID_DIST, x            );
+  }else if (FLAG == 2){
+    updateMapFeature((byte)'?', y            , x + GRID_DIST);
+    updateMapFeature((byte)'?', y + GRID_DIST, x + GRID_DIST);
+  }
+}
+
+void Mapper::mapBufferMid(float y, float x, int FLAG){
+  if (FLAG == 0){
+    Serial.print("Buffer x: ");
+    Serial.print(x);
+    Serial.print(", Buffer y");
+    Serial.println(y + GRID_DIST);
+    updateMapFeature((byte)'?', y            , x - GRID_DIST);
+  }else if (FLAG == 1){
+//    Serial.print("Buffer x: ");
+//    Serial.print(x);
+//    Serial.print(", Buffer y");
+//    Serial.println(y + GRID_DIST);
+    updateMapFeature((byte)'?', y + GRID_DIST, x            );
+  }else if (FLAG == 3){
+    updateMapFeature((byte)'?', y - GRID_DIST, x            );
+  }else if (FLAG == 2){
+    updateMapFeature((byte)'?', y            , x + GRID_DIST);
+  }
+}
+
 
 
 #endif

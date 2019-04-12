@@ -35,4 +35,14 @@ float randGaussian( float mean, float sd ) {
    return mean + y * sd;
    
 }
- 
+
+
+
+ /*
+  * Our own utils
+  */
+
+void stop_speed(){
+  analogWrite( MOTOR_PWM_R, 0 );
+  analogWrite( MOTOR_PWM_L, 0 );
+}

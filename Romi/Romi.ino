@@ -72,6 +72,7 @@ Mapper        Map; //Class for representing the map
 Pushbutton    ButtonB( BUTTON_B, DEFAULT_STATE_HIGH);
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+ *  
  * Global variables.                                                             *
  * These global variables are not mandatory, but are used for the example loop() *
  * routine below.                                                                *
@@ -84,7 +85,6 @@ Pushbutton    ButtonB( BUTTON_B, DEFAULT_STATE_HIGH);
 #define UP      1
 #define DOWN    3
 #define BACK    2
-//#define FORWARD 0
 
 #define NORTH   0
 #define SOUTH   1
@@ -100,14 +100,14 @@ float right_speed_demand = 0;
 int STATE;
 
 // Going forward
-int COUNT = COUNTS_PER_MM * 72;
-long count = COUNT;
+int COUNTS_PER_GRID = COUNTS_PER_MM * GRID_DIST;
+long count = COUNTS_PER_GRID;
 
 // Determine direction
-char SMALLEST;
 int FLAG = FORWARD;
 float dir;
 int FLAG_SMALLEST;
+char lowest_neighbor;
 
 // Going from 180 to -90
 int MINUS90;
@@ -149,6 +149,17 @@ void setup()
   //Setup RFID card
   setupRFID();
 
+  //Calibrate the IR sensors
+  float alpha = 0.24;
+  LeftIR.setAlpha(alpha);
+  MidIR.setAlpha(alpha);
+  RightIR.setAlpha(alpha);
+  
+  LeftIR.calibrate();
+  MidIR.calibrate();
+  RightIR.calibrate();
+  
+  
   // These functions calibrate the IMU and Magnetometer
   // The magnetometer calibration routine require you to move
   // your robot around  in space.  
@@ -186,7 +197,7 @@ void setup()
   Serial.println("Map Erased - Mapping Started");
 
   //Draw map
-  //Map.initMap();
+  Map.initMap();
 
   LeftSpeedControl.reset();
   RightSpeedControl.reset();
@@ -211,7 +222,7 @@ void loop() {
   //doMovement();
   doMapping();
   
-  //wavefront();
+  wavefront();
   
   delay(2);
 }
@@ -265,117 +276,16 @@ void forward(){
 }
 
 void walk(){
+  getNeighborReadings();
 
-  getReadings();
-
-  SMALLEST  = n_val;
-  FLAG_SMALLEST = NORTH; 
-  //  dir = 0;  
+  determineLowestNeighbor();
   
-  MINUS90 = 0;
-  if( SMALLEST > s_val ){
-    Serial.println("s");
-    SMALLEST = s_val;
-    FLAG_SMALLEST = SOUTH; 
-  }
-  
-  if( SMALLEST > w_val){
-    Serial.println("w");
-    SMALLEST = w_val;
-    FLAG_SMALLEST = WEST; 
-  }
-
-  if( SMALLEST > e_val){
-    Serial.println("e");
-    SMALLEST = e_val;
-    FLAG_SMALLEST = EAST; 
-  }
-  
-/*
- * FLAG is the heading direction of Romi
- * 
- */
-  if (FLAG_SMALLEST == NORTH){ //turn North/go forward
-
-    if(FLAG == FORWARD){
-      dir = 0;
-    }
-    else if(FLAG == UP){
-      dir = 90;
-    }
-    else if(FLAG == DOWN){
-      dir = -90;
-    }
-    else if(FLAG == BACK){
-      dir = 180;
-      //BUFFER
-    }
-
-  //TURN 180 DEGREE - CONDITION NOT MET
-  }else if(FLAG_SMALLEST == SOUTH){ //turn South/back
-    
-    if(FLAG == FORWARD){
-      FLAG = BACK;
-      dir = 180;
-      //BUFFER
-    }
-    else if(FLAG == UP){
-      FLAG = DOWN;
-      dir = -90;
-    }
-    else if(FLAG == DOWN){
-      FLAG = UP;
-      dir = 90;
-    }
-    else if(FLAG == BACK){
-      FLAG = FORWARD;
-      dir = 0;
-    }
-
-  }else if(FLAG_SMALLEST == WEST){ //turn West/left
-
-    if(FLAG == FORWARD){
-      FLAG = UP;
-      dir = 90;
-    }
-    else if(FLAG == UP){
-      FLAG = BACK;
-      dir = 180;
-    }
-    else if(FLAG == DOWN){
-      FLAG = FORWARD;
-      dir = 0;
-    }
-    else if(FLAG == BACK){
-      FLAG = DOWN;
-      dir = -90;
-      MINUS90 = 1;
-    }
-    
-  }else if(FLAG_SMALLEST == EAST){ //turn East/right
-
-    if(FLAG == FORWARD){
-      FLAG = DOWN;
-      dir = -90;
-    }
-    else if(FLAG == UP){
-      FLAG = FORWARD;
-      dir = 0;
-    }
-    else if(FLAG == DOWN){
-      FLAG = BACK;
-      dir = 180;
-    }
-    else if(FLAG == BACK){
-      FLAG = UP;
-      dir = 90; 
-    }
-  }
+  determineTurningAngle();
   
   if(FLAG_SMALLEST == NORTH){
     Serial.println("FORWARD");
     STATE = FORWARD;
-    count = right_encoder_count + COUNT;
+    count = right_encoder_count + COUNTS_PER_GRID;
   }else{
     // ROTATE
     Serial.println("ROTATE");
@@ -399,7 +309,7 @@ void walk(){
   Serial.println( e_val );
 }
 
-int getReadings(){
+void getNeighborReadings(){
   
   int x_index = Map.poseToIndex(Pose.getX(), MAP_X, MAP_RESOLUTION);
   int y_index = Map.poseToIndex(Pose.getY(), MAP_Y, MAP_RESOLUTION);
@@ -446,6 +356,112 @@ int getReadings(){
   }
 }
 
+void determineLowestNeighbor(){
+    lowest_neighbor  = n_val;
+    FLAG_SMALLEST = NORTH; 
+    
+    if( lowest_neighbor > s_val ){
+      Serial.println("s");
+      lowest_neighbor = s_val;
+      FLAG_SMALLEST = SOUTH; 
+    }
+    
+    if( lowest_neighbor > w_val){
+      Serial.println("w");
+      lowest_neighbor = w_val;
+      FLAG_SMALLEST = WEST; 
+    }
+  
+    if( lowest_neighbor > e_val){
+      Serial.println("e");
+      lowest_neighbor = e_val;
+      FLAG_SMALLEST = EAST; 
+    }
+}
+/*
+ * FLAG is the heading direction of Romi
+ * 
+ */
+void determineTurningAngle(){
+    MINUS90 = 0;
+    if (FLAG_SMALLEST == NORTH){ //turn North/go forward
+  
+      if(FLAG == FORWARD){
+        dir = 0;
+      }
+      else if(FLAG == UP){
+        dir = 90;
+      }
+      else if(FLAG == DOWN){
+        dir = -90;
+      }
+      else if(FLAG == BACK){
+        dir = 180;
+        //BUFFER
+      }
+  
+    //TURN 180 DEGREE - CONDITION NOT MET
+    }else if(FLAG_SMALLEST == SOUTH){ //turn South/back
+      
+      if(FLAG == FORWARD){
+        FLAG = BACK;
+        dir = 180;
+        //BUFFER
+      }
+      else if(FLAG == UP){
+        FLAG = DOWN;
+        dir = -90;
+      }
+      else if(FLAG == DOWN){
+        FLAG = UP;
+        dir = 90;
+      }
+      else if(FLAG == BACK){
+        FLAG = FORWARD;
+        dir = 0;
+      }
+  
+    }else if(FLAG_SMALLEST == WEST){ //turn West/left
+  
+      if(FLAG == FORWARD){
+        FLAG = UP;
+        dir = 90;
+      }
+      else if(FLAG == UP){
+        FLAG = BACK;
+        dir = 180;
+      }
+      else if(FLAG == DOWN){
+        FLAG = FORWARD;
+        dir = 0;
+      }
+      else if(FLAG == BACK){
+        FLAG = DOWN;
+        dir = -90;
+        MINUS90 = 1;
+      }
+      
+    }else if(FLAG_SMALLEST == EAST){ //turn East/right
+  
+      if(FLAG == FORWARD){
+        FLAG = DOWN;
+        dir = -90;
+      }
+      else if(FLAG == UP){
+        FLAG = FORWARD;
+        dir = 0;
+      }
+      else if(FLAG == DOWN){
+        FLAG = BACK;
+        dir = 180;
+      }
+      else if(FLAG == BACK){
+        FLAG = UP;
+        dir = 90; 
+      }
+    }
+}
+
 void rotate() {
   float theta = Pose.getThetaDegrees();
   float output;
@@ -471,7 +487,7 @@ void rotate() {
     Serial.print(", afterleft counts: ");
     Serial.println(left_encoder_count);
     
-    count = right_encoder_count + COUNT;
+    count = right_encoder_count + COUNTS_PER_GRID;
     STATE = FORWARD;
     
   } else {
@@ -489,43 +505,43 @@ void rotate() {
  * better obstacle avoidance behaviour implemented for
  * your Experiment Day 1 baseline test.  
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-void doMovement() {
-
-  // Static means this variable will keep
-  // its value on each call from loop()
-  static unsigned long walk_update = millis();
-
-  // used to control the forward and turn
-  // speeds of the robot.
-  float forward_bias;
-  float turn_bias;
-
-  // Check if we are about to collide.  If so,
-  // zero forward speed
-  if( MidIR.getDistanceRaw() > 450 ) {
-    forward_bias = 0;
-  } else {
-    forward_bias = 5;
-  }
-
-  // Periodically set a random turn.
-  // Here, gaussian means we most often drive
-  // forwards, and occasionally make a big turn.
-  if( millis() - walk_update > 500 ) {
-    walk_update = millis();
-
-    // randGaussian(mean, sd).  utils.h
-    turn_bias = randGaussian(0, 6.5 );
-
-    // Setting a speed demand with these variables
-    // is automatically captured by a speed PID 
-    // controller in timer3 ISR. Check interrupts.h
-    // for more information.
-    left_speed_demand = forward_bias + turn_bias;
-    right_speed_demand = forward_bias - turn_bias;
-  } 
-
-}
+//void doMovement() {
+//
+//  // Static means this variable will keep
+//  // its value on each call from loop()
+//  static unsigned long walk_update = millis();
+//
+//  // used to control the forward and turn
+//  // speeds of the robot.
+//  float forward_bias;
+//  float turn_bias;
+//
+//  // Check if we are about to collide.  If so,
+//  // zero forward speed
+//  if( MidIR.getDistanceRaw() > 450 ) {
+//    forward_bias = 0;
+//  } else {
+//    forward_bias = 5;
+//  }
+//
+//  // Periodically set a random turn.
+//  // Here, gaussian means we most often drive
+//  // forwards, and occasionally make a big turn.
+//  if( millis() - walk_update > 500 ) {
+//    walk_update = millis();
+//
+//    // randGaussian(mean, sd).  utils.h
+//    turn_bias = randGaussian(0, 6.5 );
+//
+//    // Setting a speed demand with these variables
+//    // is automatically captured by a speed PID 
+//    // controller in timer3 ISR. Check interrupts.h
+//    // for more information.
+//    left_speed_demand = forward_bias + turn_bias;
+//    right_speed_demand = forward_bias - turn_bias;
+//  } 
+//
+//}
 
 void doMapping() {
   
@@ -533,9 +549,9 @@ void doMapping() {
   Map.updateMapFeature( (byte)'=', Pose.getY(), Pose.getX() );
 
 
-  float left_distance  = LeftIR.getDistanceInMM();
-  float mid_distance   = MidIR.getDistanceInMM();
-  float right_distance = RightIR.getDistanceInMM();
+  float left_distance  = 0; //LeftIR.getDistanceInMM();
+  float mid_distance   = 0; //MidIR.getDistanceInMM();
+  float right_distance = 0; //RightIR.getDistanceInMM();
 
   Serial.print("Left: ");
   Serial.print( left_distance );
@@ -544,41 +560,38 @@ void doMapping() {
   Serial.print(", Right ");
   Serial.println(right_distance);
 
-  if ( 30 > mid_distance and mid_distance > 15.2){
+  if ( 300 > mid_distance and mid_distance > 152){
     mid_distance += 80;
     
     // Here we calculate the actual position of the obstacle we have detected
     float projected_x = Pose.getX() + ( mid_distance * cos( Pose.getThetaRadians()  ) );
     float projected_y = Pose.getY() + ( mid_distance * sin( Pose.getThetaRadians() ) );
+    Serial.print("Projected_x ");
+    Serial.print(projected_x);
+    Serial.print(", projected_y");
+    Serial.print(projected_y);
     Map.updateMapFeature( (byte)'O', projected_y, projected_x ); 
-    Map.mapBuffer(projected_y, projected_x);
+    Map.mapBufferMid(projected_y, projected_x, FLAG);
   }
 
-  if ( 33 > left_distance and left_distance > 18.04){
+  if ( 330 > left_distance and left_distance > 180){
     left_distance += 80;
     
     // Here we calculate the actual position of the obstacle we have detected
     float projected_x = Pose.getX() + ( left_distance * cos( Pose.getThetaRadians() + 0.602) );
     float projected_y = Pose.getY() + ( left_distance * sin( Pose.getThetaRadians() + 0.602) );
     Map.updateMapFeature( (byte)'O', projected_y, projected_x );
-    Map.mapBuffer(projected_y, projected_x);
+    Map.mapBufferLeft(projected_y, projected_x, FLAG);
     
   }
-  if ( 33 > right_distance and right_distance > 18.04){
+  if ( 330 > right_distance and right_distance > 180){
     right_distance += 80;
     
     // Here we calculate the actual position of the obstacle we have detected
     float projected_x = Pose.getX() + ( right_distance * cos( Pose.getThetaRadians() - 0.5847) );
     float projected_y = Pose.getY() + ( right_distance * sin( Pose.getThetaRadians() - 0.5847) ); 
     Map.updateMapFeature( (byte)'O', projected_y , projected_x );
-    Map.mapBuffer(projected_y, projected_x);
+    Map.mapBufferRight(projected_y, projected_x, FLAG);
   }
   Map.printMap();
-//  delay();
-}
-
-
-void stop_speed(){
-  analogWrite( MOTOR_PWM_R, 0 );
-  analogWrite( MOTOR_PWM_L, 0 );
 }
