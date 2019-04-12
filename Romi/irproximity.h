@@ -17,7 +17,7 @@ class SharpIR
         float new_max;
         
         // IR sensor variables
-        float a = 0.2;
+        float a = 1;
         float current_distance;
         float past_distance;
         float calibrated_reading;

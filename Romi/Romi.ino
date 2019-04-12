@@ -28,7 +28,7 @@
  * Also ensure you check pins.h for pin/device definitions.                      *
  *                                                                               *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-#define BAUD_RATE 9600
+#define BAUD_RATE 38400
 
 
 
@@ -107,7 +107,6 @@ long count = COUNTS_PER_GRID;
 int FLAG = FORWARD;
 float dir;
 int FLAG_SMALLEST;
-char lowest_neighbor;
 
 // Going from 180 to -90
 int MINUS90;
@@ -118,7 +117,7 @@ char s_val;
 char e_val;
 char w_val;
 
-
+int p = 0;
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
  * This setup() routine initialises all class instances above and peripherals.   *
  * It is recommended:                                                            *
@@ -150,7 +149,7 @@ void setup()
   setupRFID();
 
   //Calibrate the IR sensors
-  float alpha = 0.24;
+  float alpha = 0.3;
   LeftIR.setAlpha(alpha);
   MidIR.setAlpha(alpha);
   RightIR.setAlpha(alpha);
@@ -218,11 +217,12 @@ void loop() {
 
   // Remember to always update kinematics!!
   Pose.update();
+  
 
   //doMovement();
   doMapping();
   
-  wavefront();
+  //wavefront();
   
   delay(2);
 }
@@ -357,7 +357,7 @@ void getNeighborReadings(){
 }
 
 void determineLowestNeighbor(){
-    lowest_neighbor  = n_val;
+    char lowest_neighbor  = n_val;
     FLAG_SMALLEST = NORTH; 
     
     if( lowest_neighbor > s_val ){
@@ -550,7 +550,7 @@ void doMapping() {
 
 
   float left_distance  = 0; //LeftIR.getDistanceInMM();
-  float mid_distance   = 0; //MidIR.getDistanceInMM();
+  float mid_distance   = MidIR.getDistanceInMM();
   float right_distance = 0; //RightIR.getDistanceInMM();
 
   Serial.print("Left: ");

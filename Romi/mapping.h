@@ -206,9 +206,9 @@ void Mapper::mapBufferLeft(float y, float x, int FLAG){
 void Mapper::mapBufferMid(float y, float x, int FLAG){
   if (FLAG == 0){
     Serial.print("Buffer x: ");
-    Serial.print(x);
-    Serial.print(", Buffer y");
-    Serial.println(y + GRID_DIST);
+    Serial.print(x - GRID_DIST);
+    Serial.print(", Buffer y: ");
+    Serial.println(y);
     updateMapFeature((byte)'?', y            , x - GRID_DIST);
   }else if (FLAG == 1){
 //    Serial.print("Buffer x: ");
