@@ -10,6 +10,7 @@ const float COUNTS_PER_WHEEL_REVOLUTION = GEAR_RATIO * COUNTS_PER_SHAFT_REVOLUTI
 const float MM_PER_COUNT = ( 2 * WHEEL_RADIUS * PI ) / COUNTS_PER_WHEEL_REVOLUTION;
 const float COUNTS_PER_MM = 6.55;
 const float COUNTS_PER_DEGREE = 16;
+const float scale = 0.95;
 
 class Kinematics
 {
@@ -60,7 +61,7 @@ void Kinematics::update()
     //Update position
     x+= mean_delta * cos(theta);
     y+= mean_delta * sin(theta);
-    theta -=  (left_delta-right_delta) / (WHEEL_SEPARATION);  
+    theta -=  (left_delta-right_delta) / (WHEEL_SEPARATION) ;  
 
     rotationTheta  = theta;
     
