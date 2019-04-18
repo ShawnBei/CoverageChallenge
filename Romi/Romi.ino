@@ -47,7 +47,7 @@ volatile long right_encoder_count; // used by encoder to count the rotation
 #define EAST    3
 
 #define SHARP_IR_PIN A0 //Pin for the IR Distance sensor
-#define SHARP_IR_PIN_RIGHT A3 //Pin for the IR Distance sensor
+#define SHARP_IR_PIN_RIGHT A1 //Pin for the IR Distance sensor
 #define SHARP_IR_PIN_LEFT A4
  //Pin for the IR Distance sensor
 
@@ -155,14 +155,14 @@ void setup()
   setupRFID();
 
   //Calibrate the IR sensors
-  float alpha = 0.3;
+  float alpha = 0.15;
   LeftIR.setAlpha(alpha);
   MidIR.setAlpha(alpha);
   RightIR.setAlpha(alpha);
   
-//  LeftIR.calibrate();
-//  MidIR.calibrate();
-//  RightIR.calibrate();
+  LeftIR.calibrate();
+  MidIR.calibrate();
+  RightIR.calibrate();
   
   
   // These functions calibrate the IMU and Magnetometer
@@ -200,7 +200,7 @@ void setup()
 
   Map.resetMap();
   Serial.println("Map Erased - Mapping Started");
-  setupTimer2();
+  //setupTimer2();
   //Draw map
   Map.initMap();
 
@@ -483,7 +483,6 @@ void rotate() {
   float error = HeadingControl.getError();
 
   if (error < 2){
-    Pose.update();
 //    Serial.print(", right counts: ");
 //    Serial.print(right_encoder_count);
 //    Serial.print(", left counts: ");
@@ -580,26 +579,27 @@ void doMapping() {
 //  Serial.print( left_distance );
   Serial.print("Mid_distance: ");
   Serial.println(mid_distance);
+  delay(10);
 //  Serial.print(", Right ");
 //  Serial.println(right_distance);
 
-  if ( 300 > mid_distance and mid_distance > 152){
-    mid_distance += 80;
-    
-    // Here we calculate the actual position of the obstacle we have detected
-    float projected_x = Pose.getX() + ( mid_distance * cos( Pose.getThetaRadians()  ) );
-    float projected_y = Pose.getY() + ( mid_distance * sin( Pose.getThetaRadians() ) );
-
-    Map.updateMapFeature( (byte)'O', projected_y, projected_x ); 
-    Serial.print("Projected_x: ");
-    Serial.print(projected_x);
-    Serial.print(", projected_y: ");
-    Serial.println(projected_y);
-    
-    Map.mapBufferMid(projected_y, projected_x, FLAG);
-
-    Map.printMap();
-  }
+//  if ( 300 > mid_distance and mid_distance > 152){
+//    mid_distance += 80;
+//    
+//    // Here we calculate the actual position of the obstacle we have detected
+//    float projected_x = Pose.getX() + ( mid_distance * cos( Pose.getThetaRadians()  ) );
+//    float projected_y = Pose.getY() + ( mid_distance * sin( Pose.getThetaRadians() ) );
+//
+//    Map.updateMapFeature( (byte)'O', projected_y, projected_x ); 
+//    Serial.print("Projected_x: ");
+//    Serial.print(projected_x);
+//    Serial.print(", projected_y: ");
+//    Serial.println(projected_y);
+//    
+//    Map.mapBufferMid(projected_y, projected_x, FLAG);
+//
+//    Map.printMap();
+//  }
 //
 //  if ( 330 > left_distance and left_distance > 180){
 //    left_distance += 80;
