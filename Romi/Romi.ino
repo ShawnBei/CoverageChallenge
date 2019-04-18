@@ -129,6 +129,7 @@ int p = 0;
 void setup()
 {
 
+  
   // These two function set up the pin
   // change interrupts for the encoders.
   setupLeftEncoder();
@@ -194,7 +195,7 @@ void setup()
 
   Map.resetMap();
   Serial.println("Map Erased - Mapping Started");
-
+  setupTimer2();
   //Draw map
   Map.initMap();
 
@@ -594,4 +595,34 @@ void doMapping() {
     Map.mapBufferRight(projected_y, projected_x, FLAG);
   }
   Map.printMap();
+}
+
+
+
+// Routine to setupt timer3 to run 
+void setupTimer2()
+{
+    // Clear Timer 3 registers
+    TCCR1A = 0;
+    TCCR1B = 0;
+    TCNT1 = 0;
+
+    // 100 Hz (16000000/((624+1)*256))
+    OCR1A = 624;
+    // CTC
+    TCCR1B |= (1 << WGM12);
+    // Prescaler 256
+    TCCR1B |= (1 << CS12);
+    // Output Compare Match A Interrupt Enable
+    TIMSK1 |= (1 << OCIE1A);
+}
+
+
+ISR( TIMER1_COMPA_vect ) {
+  Pose.update();  
+  Serial.println("d");
+  //if (STATE == 2){
+  //  rot_count++;
+  //}
+  
 }
