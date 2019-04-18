@@ -82,6 +82,8 @@ float SharpIR::getDistanceInMM()
     // Convert to MM by multiplying with 10
     return distance * 10;
 }
+
+
 void SharpIR::setAlpha(float alpha)
 {
     a = alpha;

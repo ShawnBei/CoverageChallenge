@@ -1,12 +1,12 @@
 
 // Volatile Global variables used by Encoder ISR.
-volatile long left_encoder_count; // used by encoder to count the rotation
+//volatile long left_encoder_count; // used by encoder to count the rotation
 volatile bool old_left_A;  // used by encoder to remember prior state of A
 volatile bool old_left_B;  // used by encoder to remember prior state of B
 volatile long last_count_left;
 volatile float left_speed;
 
-volatile long right_encoder_count; // used by encoder to count the rotation
+//volatile long right_encoder_count; // used by encoder to count the rotation
 volatile bool old_right_A;  // used by encoder to remember prior state of A
 volatile bool old_right_B;  // used by encoder to remember prior state of B
 volatile long last_count_right;
@@ -15,18 +15,16 @@ volatile float right_speed;
 
 
 
-
-
-
 // extern tells this class that these
 // are declared as globals else where
 extern bool   use_speed_controller;
-extern float left_speed_demand;
-extern float right_speed_demand;
+extern float  left_speed_demand;
+extern float  right_speed_demand;
 extern PID    LeftSpeedControl;
 extern PID    RightSpeedControl;
 extern Motor  LeftMotor;
 extern Motor  RightMotor;
+extern Kinematics    Pose;
 
 
 // This ISR handles just Encoder 1
@@ -295,7 +293,9 @@ void startTimer()
 
 ISR(TIMER3_COMPA_vect)
 {
-
+  cli();
+    Pose.update();
+    
     /*
      * Calculate Speeds
      */
@@ -316,4 +316,7 @@ ISR(TIMER3_COMPA_vect)
         LeftMotor.setPower(left_motor_demand);
         RightMotor.setPower(right_motor_demand);
     }
+
+  sei();
+    
 }
