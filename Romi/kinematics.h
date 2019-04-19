@@ -29,6 +29,7 @@ class Kinematics
          float getAngularVelocity();
          float rotationTheta;
          void updateTheta();
+         void setUnlimited(bool state);
          
          
         
@@ -42,6 +43,7 @@ class Kinematics
          long  last_left_encoder_count = 0;
          long  last_right_encoder_count = 0;
          bool  debug=false;
+         int   unlimited = 0;
          unsigned long last_update = 0;
 
 };
@@ -72,16 +74,17 @@ void Kinematics::update()
     angular_velocity -= last_theta;
     angular_velocity /= time_elapsed;
     
-
-    //Wrap theta between -PI and PI.
-    if (theta > PI + 0.0872665)
-    {
-        theta -=2*PI;
+    if(unlimited == 0){
+      //Wrap theta between -PI and PI.
+      if (theta > PI + 0.0872665)
+      {
+          theta -=2*PI;
+      }
+      else if(theta < -PI)
+      {
+          theta += 2*PI;
+      } 
     }
-    else if(theta < -PI)
-    {
-        theta += 2*PI;
-    } 
 
     last_theta = theta;
 
@@ -91,7 +94,6 @@ void Kinematics::update()
     }
   
 }
-
 
 float Kinematics::getThetaDegrees()
 {
@@ -155,6 +157,10 @@ void Kinematics::printPose()
 
 }
 
+void Kinematics::setUnlimited(bool state)
+{
+    unlimited = state;
+}
 
 void Kinematics::setDebug(bool state)
 {

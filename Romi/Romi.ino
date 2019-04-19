@@ -57,6 +57,7 @@ volatile long right_encoder_count; // used by encoder to count the rotation
  *                                                                               *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 Kinematics    Pose; //Kinematics class to store position and heading
+Kinematics    TurningPose;
 
 LineSensor    LineLeft(LINE_LEFT_PIN); //Left line sensor
 LineSensor    LineCentre(LINE_CENTRE_PIN); //Centre line sensor
@@ -203,6 +204,8 @@ void setup()
   //setupTimer2();
   //Draw map
   Map.initMap();
+
+  TurningPose.setUnlimited(1);
 
   LeftSpeedControl.reset();
   RightSpeedControl.reset();
@@ -389,20 +392,23 @@ void determineLowestNeighbor(){
  * 
  */
 void determineTurningAngle(){
-    MINUS90 = 0;
+
+    float theta = Pose.getThetaDegrees();
+    
+    //MINUS90 = 0;
     if (FLAG_SMALLEST == NORTH){ //turn North/go forward
   
       if(FLAG == FORWARD){
-        dir = 0;
+        dir = theta;
       }
       else if(FLAG == UP){
-        dir = 90;
+        dir = theta + 90;
       }
       else if(FLAG == DOWN){
-        dir = -90;
+        dir = theta - 90;
       }
       else if(FLAG == BACK){
-        dir = 180;
+        dir = theta + 180;
         //BUFFER
       }
   
@@ -411,59 +417,59 @@ void determineTurningAngle(){
       
       if(FLAG == FORWARD){
         FLAG = BACK;
-        dir = 180;
+        dir = theta + 180;
         //BUFFER
       }
       else if(FLAG == UP){
         FLAG = DOWN;
-        dir = -90;
+        dir = theta - 90;
       }
       else if(FLAG == DOWN){
         FLAG = UP;
-        dir = 90;
+        dir = theta + 90;
       }
       else if(FLAG == BACK){
         FLAG = FORWARD;
-        dir = 0;
+        dir = theta;
       }
   
     }else if(FLAG_SMALLEST == WEST){ //turn West/left
   
       if(FLAG == FORWARD){
         FLAG = UP;
-        dir = 90;
+        dir = theta + 90;
       }
       else if(FLAG == UP){
         FLAG = BACK;
-        dir = 180;
+        dir = theta + 180;
       }
       else if(FLAG == DOWN){
         FLAG = FORWARD;
-        dir = 0;
+        dir = theta;
       }
       else if(FLAG == BACK){
         FLAG = DOWN;
-        dir = -90;
-        MINUS90 = 1;
+        dir = theta - 90;
+        //MINUS90 = 1;
       }
       
     }else if(FLAG_SMALLEST == EAST){ //turn East/right
   
       if(FLAG == FORWARD){
         FLAG = DOWN;
-        dir = -90;
+        dir = theta - 90;
       }
       else if(FLAG == UP){
         FLAG = FORWARD;
-        dir = 0;
+        dir = theta;
       }
       else if(FLAG == DOWN){
         FLAG = BACK;
-        dir = 180;
+        dir = theta + 180;
       }
       else if(FLAG == BACK){
         FLAG = UP;
-        dir = 90; 
+        dir = theta + 90; 
       }
     }
 }
