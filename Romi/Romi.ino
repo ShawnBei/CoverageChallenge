@@ -36,6 +36,7 @@ volatile long right_encoder_count; // used by encoder to count the rotation
 #define FORWARD 0
 #define WALK    1
 #define ROTATE  2
+#define TIME    3
 
 #define UP      1
 #define DOWN    3
@@ -122,6 +123,7 @@ char w_val;
 
 int p = 0;
 
+unsigned long timestamp;
 
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
@@ -194,6 +196,8 @@ void setup()
   ButtonB.waitForButton();  
 
   Map.printMap();
+  Map.printMetrics();
+  
 
   // Watch for second button press, then begin autonomous mode.
   ButtonB.waitForButton();  
@@ -201,14 +205,20 @@ void setup()
   Map.resetMap();
   Serial.println("Map Erased - Mapping Started");
 
-  //Draw map
-  Map.initMap();
+  // DRAW MAP
+  // Map types: 
+  // - "inverse-circular"
+  // - "BF"
+  // - "circular"
+  String mapType = "circular";
+  Map.initMap(mapType);
 
   LeftSpeedControl.reset();
   RightSpeedControl.reset();
   left_speed_demand = 0;
   right_speed_demand = 0;
-  
+
+  timestamp = millis();
 }
 
 
@@ -221,16 +231,17 @@ void setup()
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 void loop() {
 
-  // Remember to always update kinematics!!
-//  Pose.update();
+  Pose.update();
+  unsigned long elapsed_time = millis()-timestamp;
+  
+  if (elapsed_time > 1000*60*3){
+    STATE = TIME; // Time has elapsed
+  }
   
   //doMovement();
   doMapping();
   
   wavefront();
-//  float a = 0;
-//  float output = HeadingControl.update( a, 180 );
-//  Serial.println(output);
   
   delay(2);
 }
@@ -243,7 +254,8 @@ void wavefront(){
             break;
     case 2: rotate();
             break;
-    default: Serial.println("r");
+    case 3: stop_romi();
+    default: Serial.println("Time");
              break;
   }
 }
@@ -253,25 +265,25 @@ void forward(){
   int condition = (count - right_encoder_count) < 0;
   float forward_heading_output  = ForwardHeadingControl.update(dir, Pose.getThetaDegrees());
   
-  Serial.print("FORWARD: Direction: ");
-  Serial.print( dir );
-  Serial.print(", Degree: ");
-  Serial.print(Pose.getThetaDegrees() );
-  Serial.print(", Heading output:  ");
-  Serial.print( forward_heading_output );
-  Serial.print(", left speed: ");
-  Serial.print( left_speed_demand );
-  Serial.print(", right speed: ");
-  Serial.print( right_speed_demand );
-  Serial.print(", LEFT ENCODER: ");
-  Serial.print( left_encoder_count );
-  Serial.print(", RIGHT ENCODER: ");
-  Serial.print( right_encoder_count );
-  Serial.print(", count condition: ");
-  Serial.println( count );
-  
+//  Serial.print("FORWARD: Direction: ");
+//  Serial.print( dir );
+//  Serial.print(", Degree: ");
+//  Serial.print(Pose.getThetaDegrees() );
+//  Serial.print(", Heading output:  ");
+//  Serial.print( forward_heading_output );
+//  Serial.print(", left speed: ");
+//  Serial.print( left_speed_demand );
+//  Serial.print(", right speed: ");
+//  Serial.print( right_speed_demand );
+//  Serial.print(", LEFT ENCODER: ");
+//  Serial.print( left_encoder_count );
+//  Serial.print(", RIGHT ENCODER: ");
+//  Serial.print( right_encoder_count );
+//  Serial.print(", count condition: ");
+//  Serial.println( count );
+
   if(condition){
-    stop_speed();
+    stop_romi();
     Serial.println(" ");
     Serial.println(  "***********FORWARD FINISHED***********" );
     Serial.println(" ");
