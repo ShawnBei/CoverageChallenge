@@ -37,6 +37,11 @@ class PID
         void  printResponse(); // This function prints the ratio of input to output in a way that is nicely interpreted by the Serial plotter
         void  setShowResponse(bool state); //This functions set the show_response flag
         float getError(); //return error
+        float total=0;
+        float Kp_output=0; 
+        float Ki_output=0;
+        float Kd_output=0;
+        float error = 0;
         
     /* Private functions and variables are defined here. These functions / variables cannot be accessed from outside the class.
      * For example, if we try to set the value of Kp in the file "Romi.h", we will get an error (Try it out!) 
@@ -53,10 +58,8 @@ class PID
 
         //Output components
         //These are used for debugging purposes
-        float Kp_output=0; 
-        float Ki_output=0;
-        float Kd_output=0;
-        float total=0;
+
+        
 
         //Values to store
         float last_demand=0; //For storing the previous input
@@ -66,7 +69,7 @@ class PID
         long  last_millis = 0;
         bool  debug=false; //This flag controls whether we print the contributions of each component when update is called
         bool  show_response = false; // This flag controls whether we print the response of the controller on each update
-        float error = 0;
+        
     
 };
 
@@ -152,6 +155,7 @@ float PID::update(float demand, float measurement)
     total = Kp_output + Kd_output + Ki_output;
 
     //Make sure we don't exceed the maximum output
+    
     total = constrain( total, -max_output, max_output );
 
     //Print debugging information if required

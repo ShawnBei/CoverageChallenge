@@ -47,7 +47,7 @@ volatile long right_encoder_count; // used by encoder to count the rotation
 #define EAST    3
 
 #define SHARP_IR_PIN A0 //Pin for the IR Distance sensor
-#define SHARP_IR_PIN_RIGHT A1 //Pin for the IR Distance sensor
+#define SHARP_IR_PIN_RIGHT A3 //Pin for the IR Distance sensor
 #define SHARP_IR_PIN_LEFT A4
  //Pin for the IR Distance sensor
 
@@ -77,7 +77,7 @@ Motor         RightMotor(MOTOR_PWM_R, MOTOR_DIR_R);
 //These work for our Romi - We strongly suggest you perform your own tuning
 PID           LeftSpeedControl( 3.5, 20.9, 0.04 );
 PID           RightSpeedControl( 3.5, 20.9, 0.04 );
-PID           HeadingControl( 1, 0, 0.001 );
+PID           HeadingControl( 1, 0, 0 );
 PID           ForwardHeadingControl( 3, 0, 0 );
 
 //PID           RightSpeedControl( 3.5, 20.9, 0.04 );
@@ -110,6 +110,7 @@ long count = COUNTS_PER_GRID;
 int FLAG = FORWARD;
 float dir;
 int FLAG_SMALLEST;
+bool FLAG_THETA;
 
 // Going from 180 to -90
 int MINUS90;
@@ -122,8 +123,6 @@ char w_val;
 
 int p = 0;
 
-
-
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
  * This setup() routine initialises all class instances above and peripherals.   *
  * It is recommended:                                                            *
@@ -135,7 +134,6 @@ int p = 0;
 void setup()
 {
 
-  
   // These two function set up the pin
   // change interrupts for the encoders.
   setupLeftEncoder();
@@ -146,7 +144,7 @@ void setup()
   LeftSpeedControl.setMax(100);
   RightSpeedControl.setMax(100);
 
-  HeadingControl.setMax(7);
+  HeadingControl.setMax(5);
 
   // For this example, we'll calibrate only the 
   // centre sensor.  You may wish to use more.
@@ -201,11 +199,11 @@ void setup()
 
   Map.resetMap();
   Serial.println("Map Erased - Mapping Started");
-  //setupTimer2();
+
   //Draw map
   Map.initMap();
 
-  TurningPose.setUnlimited(1);
+  Pose.setUnlimited(0);
 
   LeftSpeedControl.reset();
   RightSpeedControl.reset();
@@ -213,7 +211,6 @@ void setup()
   right_speed_demand = 0;
   
 }
-
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
  * This loop() demonstrates all devices being used in a basic sequence.          
@@ -231,6 +228,9 @@ void loop() {
   doMapping();
   
   wavefront();
+//  float a = 0;
+//  float output = HeadingControl.update( a, 180 );
+//  Serial.println(output);
   
   delay(2);
 }
@@ -252,35 +252,39 @@ void forward(){
   
   int condition = (count - right_encoder_count) < 0;
   float forward_heading_output  = ForwardHeadingControl.update(dir, Pose.getThetaDegrees());
-
+  
+  Serial.print("FORWARD: Direction: ");
+  Serial.print( dir );
+  Serial.print(", Degree: ");
+  Serial.print(Pose.getThetaDegrees() );
+  Serial.print(", Heading output:  ");
+  Serial.print( forward_heading_output );
+  Serial.print(", left speed: ");
+  Serial.print( left_speed_demand );
+  Serial.print(", right speed: ");
+  Serial.print( right_speed_demand );
+  Serial.print(", LEFT ENCODER: ");
+  Serial.print( left_encoder_count );
+  Serial.print(", RIGHT ENCODER: ");
+  Serial.print( right_encoder_count );
+  Serial.print(", count condition: ");
+  Serial.println( count );
+  
   if(condition){
     stop_speed();
-    Serial.println(  "FORWARD FINISHED" );
+    Serial.println(" ");
+    Serial.println(  "***********FORWARD FINISHED***********" );
+    Serial.println(" ");
+    Map.printMap();
     STATE = WALK;
     
   }
   else{
-    int demand = 9;
+    int demand = 6;
     left_speed_demand = demand - forward_heading_output;
     right_speed_demand = demand + forward_heading_output;
-    
   }
-//  Serial.print("FORWARD Direction: ");
-//  Serial.print( dir );
-//  Serial.print(", Degree: ");
-//  Serial.print(Pose.getThetaDegrees() );
-//  Serial.print(", Heading output:  ");
-//  Serial.print( forward_heading_output );
-//  Serial.print(", left speed: ");
-//  Serial.print( left_speed_demand );
-//  Serial.print(", right speed: ");
-//  Serial.print( right_speed_demand );
-//  Serial.print(", LEFT ENCODER: ");
-//  Serial.print( left_encoder_count );
-//  Serial.print(", RIGHT ENCODER: ");
-//  Serial.print( right_encoder_count );
-//  Serial.print(", count condition: ");
-//  Serial.println( count );
+  
   
 }
 
@@ -292,12 +296,12 @@ void walk(){
   determineTurningAngle();
   
   if(FLAG_SMALLEST == NORTH){
-    Serial.println("FORWARD");
+    Serial.println("next step: FORWARD");
     STATE = FORWARD;
     count = right_encoder_count + COUNTS_PER_GRID;
   }else{
     // ROTATE
-    Serial.println("ROTATE");
+    Serial.println("next step: ROTATE");
     STATE = ROTATE;
   }
 
@@ -334,7 +338,7 @@ void getNeighborReadings(){
             e_val  =  s;
             s_val  =  w;
             n_val  =  e;
-            Serial.println("current heading forward");
+            Serial.println("current heading Forward");
             break;
             
     // UP UP UP UP UP UP UP UP UP UP UP UP 
@@ -342,7 +346,7 @@ void getNeighborReadings(){
             e_val  =  e;
             s_val  =  s;
             n_val  =  n;
-            Serial.println("current heading up");
+            Serial.println("current heading Up");
             break;
             
     // <- <- <- <- <- <- <- <- <- <- <- <-
@@ -350,7 +354,7 @@ void getNeighborReadings(){
             e_val  =  n;
             s_val  =  e;
             n_val  =  w;
-            Serial.println("current heading back");
+            Serial.println("current heading Back");
             break;
     
     // DN DN DN DN DN DN DN DN DN DN DN DN
@@ -358,7 +362,7 @@ void getNeighborReadings(){
             e_val  =  w;
             s_val  =  n;
             n_val  =  s;
-            Serial.println("current heading down");
+            Serial.println("current heading Down");
             break;
     default:  Serial.println("ERROR");
     
@@ -392,10 +396,10 @@ void determineLowestNeighbor(){
  * 
  */
 void determineTurningAngle(){
-
     float theta = Pose.getThetaDegrees();
     
     //MINUS90 = 0;
+
     if (FLAG_SMALLEST == NORTH){ //turn North/go forward
   
       if(FLAG == FORWARD){
@@ -410,6 +414,7 @@ void determineTurningAngle(){
       else if(FLAG == BACK){
         dir = theta + 180;
         //BUFFER
+
       }
   
     //TURN 180 DEGREE - CONDITION NOT MET
@@ -419,8 +424,8 @@ void determineTurningAngle(){
         FLAG = BACK;
         dir = theta + 180;
         //BUFFER
-      }
-      else if(FLAG == UP){
+
+      }else if(FLAG == UP){
         FLAG = DOWN;
         dir = theta - 90;
       }
@@ -432,7 +437,7 @@ void determineTurningAngle(){
         FLAG = FORWARD;
         dir = theta;
       }
-  
+    
     }else if(FLAG_SMALLEST == WEST){ //turn West/left
   
       if(FLAG == FORWARD){
@@ -447,7 +452,7 @@ void determineTurningAngle(){
         FLAG = FORWARD;
         dir = theta;
       }
-      else if(FLAG == BACK){
+      else if(FLAG == BACK){ //determine this back is positive or negtive 
         FLAG = DOWN;
         dir = theta - 90;
         //MINUS90 = 1;
@@ -478,17 +483,47 @@ void rotate() {
   float theta = Pose.getThetaDegrees();
   float output;
   
-  if (MINUS90 == 1 and 185 > theta and theta > 175 ){
+  if ( MINUS90 == 1 and 185 > theta and theta > 175 ){
     output = HeadingControl.update( dir, - theta); 
+    Serial.println( "MINUS90 == 1 && Theta positive" );
+    
+  }else if( MINUS90 == 1 and -185 < theta and theta < -175 ){
+    output = HeadingControl.update( dir, - theta); 
+    Serial.println( "MINUS90 == 1 && Theta negetive" );
+    
   }else{
     output = HeadingControl.update( dir, theta );
+    Serial.println( "Normal Rotate" );
+    
   }
 
+    float error = HeadingControl.getError();
+    
+    Serial.print("ROTATE: Direction: ");
+    Serial.print( dir );
+    Serial.print(", Degree: ");
+    Serial.print( theta );
+    Serial.print( ", ERROR: " );
+    Serial.print( error );
+    Serial.print(", Heading cotrol output:  ");
+    Serial.print( output );
+    Serial.print(", left speed: ");
+    Serial.print( left_speed_demand );
+    Serial.print(", right speed: ");
+    Serial.println( right_speed_demand );
+//    Serial.print(", total: ");
+//    Serial.print( HeadingControl.total );
+//    Serial.print(", error: ");
+//    Serial.print( HeadingControl.error );
+//    Serial.print(", kp: ");
+//    Serial.print( HeadingControl.Kp_output );
+//    Serial.print(", kd: ");
+//    Serial.print( HeadingControl.Kd_output );
+//    Serial.print(", ki: ");
+//    Serial.println( HeadingControl.Ki_output );
 
-  
-  float error = HeadingControl.getError();
-
-  if (error < 2){
+  if (error <= 1){
+    
 //    Serial.print(", right counts: ");
 //    Serial.print(right_encoder_count);
 //    Serial.print(", left counts: ");
@@ -500,7 +535,10 @@ void rotate() {
 //    Serial.print(", afterleft counts: ");
 //    Serial.println(left_encoder_count);
 
-    Serial.println("ROTATE FINISHED");
+    Serial.println(" ");
+    Serial.println("************ROTATE FINISHED*************");
+    Serial.println(" ");
+    Map.printMap();
     
     count = right_encoder_count + COUNTS_PER_GRID;
     STATE = FORWARD;
@@ -510,18 +548,7 @@ void rotate() {
     left_speed_demand  = -output;
     right_speed_demand = output;
   
-//    Serial.print("ROTATE Direction: ");
-//    Serial.print( dir );
-//    Serial.print(", Degree: ");
-//    Serial.print(Pose.getThetaDegrees() );
-//    Serial.print( ", ERROR: " );
-//    Serial.print( error );
-//    Serial.print(", Heading cotrol output:  ");
-//    Serial.print( output );
-//    Serial.print(", left speed: ");
-//    Serial.print( left_speed_demand );
-//    Serial.print(", right speed: ");
-//    Serial.println( right_speed_demand );
+
   }
 }
 
@@ -583,32 +610,35 @@ void doMapping() {
 
 //  Serial.print("Left: ");
 //  Serial.print( left_distance );
-  Serial.print("Mid_distance: ");
-  Serial.println(mid_distance);
-  delay(10);
+//  Serial.print("Mid_distance: ");
+//  Serial.println(mid_distance);
 //  Serial.print(", Right ");
 //  Serial.println(right_distance);
 
-//  if ( 300 > mid_distance and mid_distance > 152){
-//    mid_distance += 80;
-//    
-//    // Here we calculate the actual position of the obstacle we have detected
-//    float projected_x = Pose.getX() + ( mid_distance * cos( Pose.getThetaRadians()  ) );
-//    float projected_y = Pose.getY() + ( mid_distance * sin( Pose.getThetaRadians() ) );
-//
-//    Map.updateMapFeature( (byte)'O', projected_y, projected_x ); 
+  if ( 300 > mid_distance and mid_distance > 152){
+    mid_distance += 80;
+    
+    // Here we calculate the actual position of the obstacle we have detected
+    float projected_x = Pose.getX() + ( mid_distance * cos( Pose.getThetaRadians()  ) );
+    float projected_y = Pose.getY() + ( mid_distance * sin( Pose.getThetaRadians() ) );
+
+    Map.updateMapFeature( (byte)'O', projected_y, projected_x ); 
+    
+//    Serial.print("Mid_distance: ");
+//    Serial.println(mid_distance);
 //    Serial.print("Projected_x: ");
 //    Serial.print(projected_x);
 //    Serial.print(", projected_y: ");
 //    Serial.println(projected_y);
-//    
-//    Map.mapBufferMid(projected_y, projected_x, FLAG);
-//
+    
+    Map.mapBufferMid(projected_y, projected_x, FLAG);
+
 //    Map.printMap();
-//  }
+  }
 //
 //  if ( 330 > left_distance and left_distance > 180){
 //    left_distance += 80;
+
 //    
 //    // Here we calculate the actual position of the obstacle we have detected
 //    float projected_x = Pose.getX() + ( left_distance * cos( Pose.getThetaRadians() + 0.602) );
@@ -635,34 +665,4 @@ void doMapping() {
 //    Map.mapBufferRight(projected_y, projected_x, FLAG);
 //  }
 //  Map.printMap();
-}
-
-
-
-// Routine to setupt timer3 to run 
-void setupTimer2()
-{
-    // Clear Timer 3 registers
-    TCCR1A = 0;
-    TCCR1B = 0;
-    TCNT1 = 0;
-
-    // 100 Hz (16000000/((624+1)*256))
-    OCR1A = 624;
-    // CTC
-    TCCR1B |= (1 << WGM12);
-    // Prescaler 256
-    TCCR1B |= (1 << CS12);
-    // Output Compare Match A Interrupt Enable
-    TIMSK1 |= (1 << OCIE1A);
-}
-
-
-ISR( TIMER1_COMPA_vect ) {
-  Pose.update();  
-  Serial.println("d");
-  //if (STATE == 2){
-  //  rot_count++;
-  //}
-  
 }
