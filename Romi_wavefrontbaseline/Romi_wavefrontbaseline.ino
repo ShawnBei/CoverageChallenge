@@ -95,7 +95,7 @@ char w_val;
 int p = 0;
 
 unsigned long timestamp;
-
+unsigned long T = 135000;
 void setup()
 {
 
@@ -111,18 +111,11 @@ void setup()
 
   HeadingControl.setMax(5);
 
-  // For this example, we'll calibrate only the 
-  // centre sensor.  You may wish to use more.
-  LineCentre.calibrate(); 
-
-  //Setup RFID card
-  setupRFID();
-
   //Calibrate the IR sensors
-  float alpha = 0.15;
-  LeftIR.setAlpha(alpha);
-  MidIR.setAlpha(alpha);
-  RightIR.setAlpha(alpha);
+//  float alpha = 0.15;
+//  LeftIR.setAlpha(alpha);
+//  MidIR.setAlpha(alpha);
+//  RightIR.setAlpha(alpha);
   
   LeftIR.calibrate();
   MidIR.calibrate();
@@ -155,7 +148,7 @@ void setup()
 
   // DRAW MAP
   // Map types: 
-  // - "inverse-circular"
+  // - "inverse-circular" //change kinematics x and y 
   // - "BF"
   // - "circular"
   String mapType = "circular";
@@ -175,7 +168,7 @@ void loop() {
   
   unsigned long elapsed_time = millis() - timestamp;
   
-  if (elapsed_time > 1000*60*3){
+  if (elapsed_time > T){
     STATE = TIME; // Time has elapsed
   }
   
@@ -212,8 +205,8 @@ void forward(){
   }
   else{
     int demand = 6;
-    left_speed_demand = demand - forward_heading_output;
-    right_speed_demand = demand + forward_heading_output;
+    left_speed_demand = demand;
+    right_speed_demand = demand;
   }
   
 }
@@ -255,7 +248,7 @@ void rotate() {
 //
 //  float error = HeadingControl.getError();
 
-  int condition = (dir - theta) < 0
+  int condition = (dir - theta) < 0;
 
   //if (error <= 1){
   if (condition){
@@ -263,8 +256,8 @@ void rotate() {
     STATE = FORWARD;
     
   } else {
-    left_speed_demand  = -output;
-    right_speed_demand = output;
+    left_speed_demand  = -7;
+    right_speed_demand = 7;
   }
 }
 

@@ -10,7 +10,7 @@ const float COUNTS_PER_WHEEL_REVOLUTION = GEAR_RATIO * COUNTS_PER_SHAFT_REVOLUTI
 const float MM_PER_COUNT = ( 2 * WHEEL_RADIUS * PI ) / COUNTS_PER_WHEEL_REVOLUTION;
 const float COUNTS_PER_MM = 6.55;
 const float COUNTS_PER_DEGREE = 16;
-const float scale = 1;
+
 
 class Kinematics
 {
@@ -44,6 +44,7 @@ class Kinematics
          long  last_right_encoder_count = 0;
          bool  debug=false;
          unsigned long last_update = 0;
+         float scale = 1;
 
 };
 
@@ -161,7 +162,7 @@ void Kinematics::setDebug(bool state)
     debug = state;
 }
 
-void setScaler(float value){
+void Kinematics::setScaler(float value){
   scale = value;
 }
 
