@@ -124,7 +124,7 @@ void setup()
   /*
    * SCALER
    */
-  //Pose.setScaler(0.98);
+  Pose.setScaler(0.98);
   
   // Initialise Serial communication
   Serial.begin( BAUD_RATE );
@@ -164,7 +164,7 @@ void setup()
 
 void loop() {
 
-  Pose.update();
+//  Pose.update();
   
   unsigned long elapsed_time = millis() - timestamp;
   
@@ -186,7 +186,9 @@ void wavefront(){
             break;
     case 2: rotate();
             break;
-    case 3: stop_romi();
+    case 3: left_speed_demand = 0;
+            right_speed_demand = 0;
+            break;
     default: Serial.println("Time");
              break;
   }
@@ -195,7 +197,7 @@ void wavefront(){
 void forward(){
   
   int condition = (count - right_encoder_count) < 0;
-  //float forward_heading_output  = ForwardHeadingControl.update(dir, Pose.getThetaDegrees());
+  float forward_heading_output  = ForwardHeadingControl.update(dir, Pose.getThetaDegrees());
 
   if(condition){
     // Forward finsihed
@@ -229,28 +231,28 @@ void walk(){
 
 void rotate() {
   float theta = Pose.getThetaDegrees();
-//  float output;
-//  
-//  if ( MINUS90 == 1 and 185 > theta and theta > 175 ){
-//    output = HeadingControl.update( dir, - theta); 
-//    Serial.println( "MINUS90 == 1 && Theta positive" );
-//    
-//  }else if( MINUS90 == 1 and -185 < theta and theta < -175 ){
-//    output = HeadingControl.update( dir, - theta); 
-//    Serial.println( "MINUS90 == 1 && Theta negetive" );
-//    
-//  }else{
-//    output = HeadingControl.update( dir, theta );
-//    Serial.println( "Normal Rotate" );
-//    
-//  }
-//
-//  float error = HeadingControl.getError();
+  float output;
+  
+  if ( MINUS90 == 1 and 185 > theta and theta > 175 ){
+    output = HeadingControl.update( dir, - theta); 
+    Serial.println( "MINUS90 == 1 && Theta positive" );
+    
+  }else if( MINUS90 == 1 and -185 < theta and theta < -175 ){
+    output = HeadingControl.update( dir, - theta); 
+    Serial.println( "MINUS90 == 1 && Theta negetive" );
+    
+  }else{
+    output = HeadingControl.update( dir, theta );
+    Serial.println( "Normal Rotate" );
+    
+  }
 
-  int condition = (dir - theta) < 0;
+  float error = HeadingControl.getError();
 
-  //if (error <= 1){
-  if (condition){
+//  int condition = (dir - theta) < 0;
+
+  if (error <= 1){
+//  if (condition){
     count = right_encoder_count + COUNTS_PER_GRID;
     STATE = FORWARD;
     
@@ -278,7 +280,7 @@ void doMapping() {
 
     Map.updateMapFeature( (byte)'O', projected_y, projected_x ); 
  
-    Map.mapBufferMid(projected_y, projected_x, FLAG);
+    Map.mapBufferRight(projected_y, projected_x, FLAG);
     
   }
 
@@ -289,7 +291,7 @@ void doMapping() {
     float projected_x = Pose.getX() + ( left_distance * cos( Pose.getThetaRadians() + 0.602) );
     float projected_y = Pose.getY() + ( left_distance * sin( Pose.getThetaRadians() + 0.602) );
     Map.updateMapFeature( (byte)'O', projected_y, projected_x );
-    Map.mapBufferLeft(projected_y, projected_x, FLAG);
+    Map.mapBufferRight(projected_y, projected_x, FLAG);
     
   }
   
