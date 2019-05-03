@@ -122,7 +122,7 @@ char e_val;
 char w_val;
 
 int p = 0;
-
+unsigned long T_LIMIT = 135000;
 unsigned long timestamp;
 
 
@@ -210,8 +210,9 @@ void setup()
   // - "inverse-circular"
   // - "BF"
   // - "circular"
-  String mapType = "circular";
+  String mapType = "BF";
   Map.initMap(mapType);
+  Pose.setPose(900,900,0);
 
   LeftSpeedControl.reset();
   RightSpeedControl.reset();
@@ -230,11 +231,12 @@ void setup()
  * 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 void loop() {
+  
 
   Pose.update();
   unsigned long elapsed_time = millis()-timestamp;
   
-  if (elapsed_time > 1000*60*3){
+  if (elapsed_time > T_LIMIT){
     STATE = TIME; // Time has elapsed
   }
   
@@ -637,7 +639,6 @@ void doMapping() {
   //explored areas
   Map.updateMapFeature( (byte)'=', Pose.getY(), Pose.getX() );
 
-
 //  float left_distance  = 0; //LeftIR.getDistanceInMM();
   float mid_distance   = MidIR.getDistanceInMM();
 //  float right_distance = 0; //RightIR.getDistanceInMM();
@@ -649,26 +650,26 @@ void doMapping() {
 //  Serial.print(", Right ");
 //  Serial.println(right_distance);
 
-  if ( 300 > mid_distance and mid_distance > 152){
-    mid_distance += 80;
-    
-    // Here we calculate the actual position of the obstacle we have detected
-    float projected_x = Pose.getX() + ( mid_distance * cos( Pose.getThetaRadians()  ) );
-    float projected_y = Pose.getY() + ( mid_distance * sin( Pose.getThetaRadians() ) );
-
-    Map.updateMapFeature( (byte)'O', projected_y, projected_x ); 
-    
-//    Serial.print("Mid_distance: ");
-//    Serial.println(mid_distance);
-//    Serial.print("Projected_x: ");
-//    Serial.print(projected_x);
-//    Serial.print(", projected_y: ");
-//    Serial.println(projected_y);
-    
-    Map.mapBufferMid(projected_y, projected_x, FLAG);
+//  if ( 300 > mid_distance and mid_distance > 152){
+//    mid_distance += 80;
+//    
+//    // Here we calculate the actual position of the obstacle we have detected
+//    float projected_x = Pose.getX() + ( mid_distance * cos( Pose.getThetaRadians()  ) );
+//    float projected_y = Pose.getY() + ( mid_distance * sin( Pose.getThetaRadians() ) );
+//
+//    Map.updateMapFeature( (byte)'O', projected_y, projected_x ); 
+//    
+////    Serial.print("Mid_distance: ");
+////    Serial.println(mid_distance);
+////    Serial.print("Projected_x: ");
+////    Serial.print(projected_x);
+////    Serial.print(", projected_y: ");
+////    Serial.println(projected_y);
+//    
+//    Map.mapBufferMid(projected_y, projected_x, FLAG);
 
 //    Map.printMap();
-  }
+//  }
 //
 //  if ( 330 > left_distance and left_distance > 180){
 //    left_distance += 80;

@@ -30,6 +30,7 @@ class Kinematics
          float rotationTheta;
          void updateTheta();
          void setScaler(float value);
+         void setXY(float x, float y);
          
          
         
@@ -171,5 +172,10 @@ float Kinematics::getDistanceFromOrigin()
 {
     return sqrt(x*x + y*y);
 }
+void Kinematics::setXY(float x, float y){
+    x = x;
+    y = y;
+}
+
 
 #endif

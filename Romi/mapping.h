@@ -3,9 +3,10 @@
 #include <EEPROM.h>
 
 const byte MAP_RESOLUTION = 25;
+const byte MAP_RESOLUTION2 = 27;
 const byte MAP_DEFAULT_FEATURE = '#';
-const int MAP_X=1800;
-const int MAP_Y=1800;
+const int MAP_X=1850;
+const int MAP_Y=1850;
 const float GRID_DIST = 72;
 
 class Mapper
@@ -37,11 +38,11 @@ class Mapper
 void Mapper::resetMap()
 {
 
-    for (int i=0;i<MAP_RESOLUTION;i++)
+    for (int i=0;i<MAP_RESOLUTION2;i++)
     {
-        for (int j=0;j<MAP_RESOLUTION;j++)
+        for (int j=0;j<MAP_RESOLUTION2;j++)
         {
-            int eeprom_address = (i*MAP_RESOLUTION)+j;
+            int eeprom_address = (i*MAP_RESOLUTION2)+j;
             
             if (eeprom_address > 1023)
             {
@@ -96,15 +97,28 @@ void Mapper::initMap(String mapType)
       }
     }else if(mapType == "BF"){
       char c = '$';
-      for (int i=0; i < 25; i++)
+      for (int i=1; i < 26; i++)
       {
-          for(int j=0; j < 25; j++)
-          { 
-              int pos = (i*MAP_RESOLUTION)+j;
+          for(int j=1; j < 26; j++)
+          {
+              int pos = (j*MAP_RESOLUTION2)+i;
               EEPROM.update(pos, (byte)c);
+            
+              
           }
           c++; //change character
       }
+  
+//      for (int i = 0; i < 27; i++){
+//        for (int j = 0; j < 27; j++){
+//          if (j == 0 or i == 0 or j == 26 or i == 26){
+//            int pos = (j*MAP_RESOLUTION)+i;
+//            EEPROM.update(pos, (byte)'@');
+//          }
+//          
+//        }
+//      }
+      
     }else if(mapType == "inverse-circular"){
       char c= '0';
       for (int i=0; i < 12; i++)
@@ -143,9 +157,9 @@ void Mapper::printMap()
 {
 
     Serial.println("Map");
-    for (int i=0;i<MAP_RESOLUTION;i++)
+    for (int i=0;i<MAP_RESOLUTION2;i++)
     {
-        for(int j=0;j<MAP_RESOLUTION;j++)
+        for(int j=0;j<MAP_RESOLUTION2;j++)
         {
             int eeprom_address = (i*MAP_RESOLUTION)+j;
             byte value;

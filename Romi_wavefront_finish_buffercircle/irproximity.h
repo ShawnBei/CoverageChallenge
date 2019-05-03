@@ -76,8 +76,8 @@ float SharpIR::getDistanceInMM()
     current_distance = (a * current_distance) + ((1.0 - a) * past_distance);
     past_distance = current_distance;
     
-    past_distance = constrain(past_distance, 0, 100);
-    distance = constrain(current_distance, 0, 100);
+    past_distance = constrain(past_distance, 0, 50);
+    distance = constrain(current_distance, 0, 50);
 
     // Convert to MM by multiplying with 10
     return distance * 10;
