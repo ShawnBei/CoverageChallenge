@@ -2,11 +2,10 @@
 #define _Mapping_h
 #include <EEPROM.h>
 
-const byte MAP_RESOLUTION = 25;
-const byte MAP_RESOLUTION2 = 27;
-const byte MAP_DEFAULT_FEATURE = '#';
-const int MAP_X=1850;
-const int MAP_Y=1850;
+const byte MAP_RESOLUTION = 27;
+const byte MAP_DEFAULT_FEATURE = '@';
+const int MAP_X=1944;
+const int MAP_Y=1944;
 const float GRID_DIST = 72;
 
 class Mapper
@@ -38,11 +37,11 @@ class Mapper
 void Mapper::resetMap()
 {
 
-    for (int i=0;i<MAP_RESOLUTION2;i++)
+    for (int i=0;i<MAP_RESOLUTION;i++)
     {
-        for (int j=0;j<MAP_RESOLUTION2;j++)
+        for (int j=0;j<MAP_RESOLUTION;j++)
         {
-            int eeprom_address = (i*MAP_RESOLUTION2)+j;
+            int eeprom_address = (i*MAP_RESOLUTION)+j;
             
             if (eeprom_address > 1023)
             {
@@ -69,10 +68,10 @@ void Mapper::initMap(String mapType)
 
     if (mapType == "circular"){
       char c= '<';
-      for (int i=0; i < 12; i++)
+      for (int i=1; i < 13; i++)
       {
           int m = i + 1;
-          int n = 24 - i;
+          int n = 26 - i;
           for(; m < n; m++)
           { 
               int top = (i*MAP_RESOLUTION)+m;
@@ -83,7 +82,7 @@ void Mapper::initMap(String mapType)
           }
           
           int o = i;
-          int p = 25 - i;
+          int p = 27 - i;
           for(; o < p; o++)
           { 
               int left = (o*MAP_RESOLUTION)+i;
@@ -101,7 +100,7 @@ void Mapper::initMap(String mapType)
       {
           for(int j=1; j < 26; j++)
           {
-              int pos = (j*MAP_RESOLUTION2)+i;
+              int pos = (j*MAP_RESOLUTION)+i;
               EEPROM.update(pos, (byte)c);
             
               
@@ -121,10 +120,10 @@ void Mapper::initMap(String mapType)
       
     }else if(mapType == "inverse-circular"){
       char c= '0';
-      for (int i=0; i < 12; i++)
+       for (int i=1; i < 13; i++)
       {
           int m = i + 1;
-          int n = 24 - i;
+          int n = 26 - i;
           for(; m < n; m++)
           { 
               int top = (i*MAP_RESOLUTION)+m;
@@ -135,7 +134,7 @@ void Mapper::initMap(String mapType)
           }
           
           int o = i;
-          int p = 25 - i;
+          int p = 27 - i;
           for(; o < p; o++)
           { 
               int left = (o*MAP_RESOLUTION)+i;
@@ -147,7 +146,7 @@ void Mapper::initMap(String mapType)
           }
           c++; //change character
       }
-      EEPROM.update((12*MAP_RESOLUTION)+12, (byte)c);
+      EEPROM.update((13*MAP_RESOLUTION)+13, (byte)c);
     }else{
       Serial.println("Please input a valid map type");
     }
@@ -157,9 +156,9 @@ void Mapper::printMap()
 {
 
     Serial.println("Map");
-    for (int i=0;i<MAP_RESOLUTION2;i++)
+    for (int i=0;i<MAP_RESOLUTION;i++)
     {
-        for(int j=0;j<MAP_RESOLUTION2;j++)
+        for(int j=0;j<MAP_RESOLUTION;j++)
         {
             int eeprom_address = (i*MAP_RESOLUTION)+j;
             byte value;

@@ -210,9 +210,9 @@ void setup()
   // - "inverse-circular"
   // - "BF"
   // - "circular"
-  String mapType = "BF";
+  String mapType = "inverse-circular";
   Map.initMap(mapType);
-  Pose.setPose(900,900,0);
+  Pose.setPose(108,108,0);
 
   LeftSpeedControl.reset();
   RightSpeedControl.reset();
