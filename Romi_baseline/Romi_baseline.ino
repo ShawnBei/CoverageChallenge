@@ -186,12 +186,12 @@ void loop() {
   Pose.update();
   doMapping();
   
-//  unsigned long elapsed_time = millis() - timestamp;
-//  if (elapsed_time > T){
-//    STATE = 4;
-//    left_speed_demand = 0;
-//    right_speed_demand = 0;
-//  }
+  unsigned long elapsed_time = millis() - timestamp;
+  if (elapsed_time > T){
+    STATE = 4;
+    left_speed_demand = 0;
+    right_speed_demand = 0;
+  }
   
   randomwalk();
   

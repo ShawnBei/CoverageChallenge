@@ -31,7 +31,7 @@ volatile long right_encoder_count; // used by encoder to count the rotation
  * Also ensure you check pins.h for pin/device definitions.                      *
  *                                                                               *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-#define BAUD_RATE 38400
+#define BAUD_RATE 1000000
 
 #define FORWARD 0
 #define WALK    1
@@ -47,8 +47,8 @@ volatile long right_encoder_count; // used by encoder to count the rotation
 #define WEST    2
 #define EAST    3
 
-#define SHARP_IR_PIN A0 //Pin for the IR Distance sensor
-#define SHARP_IR_PIN_RIGHT A3 //Pin for the IR Distance sensor
+#define SHARP_IR_PIN A3 //Pin for the IR Distance sensor
+#define SHARP_IR_PIN_RIGHT A0 //Pin for the IR Distance sensor
 #define SHARP_IR_PIN_LEFT A4
  //Pin for the IR Distance sensor
 
@@ -241,9 +241,18 @@ void loop() {
 //  }
   
   //doMovement();
-  doMapping();
-  
-  wavefront();
+//  doMapping();
+  float left_distance  = LeftIR.getDistanceInMM();
+  float mid_distance   = MidIR.getDistanceInMM();
+  float right_distance = RightIR.getDistanceInMM();
+
+  Serial.print("left: ");
+  Serial.print( left_distance );
+  Serial.print(", mid: ");
+  Serial.print( mid_distance );
+  Serial.print(", right: ");
+  Serial.println( right_distance );
+//  wavefront();
   
   delay(2);
 }
@@ -267,16 +276,16 @@ void forward(){
   int condition = (count - right_encoder_count) < 0;
   float forward_heading_output  = ForwardHeadingControl.update(dir, Pose.getThetaDegrees());
   
-//  Serial.print("FORWARD: Direction: ");
-//  Serial.print( dir );
-//  Serial.print(", Degree: ");
-//  Serial.print(Pose.getThetaDegrees() );
+  Serial.print("FORWARD: Direction: ");
+  Serial.print( dir );
+  Serial.print(", Degree: ");
+  Serial.println(Pose.getThetaDegrees() );
 //  Serial.print(", Heading output:  ");
 //  Serial.print( forward_heading_output );
-//  Serial.print(", left speed: ");
-//  Serial.print( left_speed_demand );
-//  Serial.print(", right speed: ");
-//  Serial.print( right_speed_demand );
+  Serial.print(", left speed: ");
+  Serial.print( left_speed_demand );
+  Serial.print(", right speed: ");
+  Serial.println( right_speed_demand );
 //  Serial.print(", LEFT ENCODER: ");
 //  Serial.print( left_encoder_count );
 //  Serial.print(", RIGHT ENCODER: ");
@@ -320,21 +329,21 @@ void walk(){
     STATE = ROTATE;
   }
 
-  Serial.print("FLAG_SMALLEST: ");
-  Serial.print( FLAG_SMALLEST );
-  Serial.print(", FLAG: ");
-  Serial.print( FLAG );
-  Serial.print(", DIR: ");
-  Serial.print( dir  );
-  Serial.print(",   ");
-  Serial.print("North: ");
-  Serial.print( n_val );
-  Serial.print(", South: ");
-  Serial.print( s_val );
-  Serial.print(", West: ");
-  Serial.print( w_val  );
-  Serial.print(", East: ");
-  Serial.println( e_val );
+//  Serial.print("FLAG_SMALLEST: ");
+//  Serial.print( FLAG_SMALLEST );
+//  Serial.print(", FLAG: ");
+//  Serial.print( FLAG );
+//  Serial.print(", DIR: ");
+//  Serial.print( dir  );
+//  Serial.print(",   ");
+//  Serial.print("North: ");
+//  Serial.print( n_val );
+//  Serial.print(", South: ");
+//  Serial.print( s_val );
+//  Serial.print(", West: ");
+//  Serial.print( w_val  );
+//  Serial.print(", East: ");
+//  Serial.println( e_val );
 }
 
 void getNeighborReadings(){
@@ -538,15 +547,15 @@ void rotate() {
     Serial.print("ROTATE: Direction: ");
     Serial.print( dir );
     Serial.print(", Degree: ");
-    Serial.print( theta );
-    Serial.print( ", ERROR: " );
-    Serial.print( error );
-    Serial.print(", Heading cotrol output:  ");
-    Serial.print( output );
-    Serial.print(", left speed: ");
-    Serial.print( left_speed_demand );
-    Serial.print(", right speed: ");
-    Serial.println( right_speed_demand );
+    Serial.println( theta );
+//    Serial.print( ", ERROR: " );
+//    Serial.print( error );
+//    Serial.print(", Heading cotrol output:  ");
+//    Serial.println( output );
+//    Serial.print(", left speed: ");
+//    Serial.print( left_speed_demand );
+//    Serial.print(", right speed: ");
+//    Serial.println( right_speed_demand );
 //    Serial.print(", total: ");
 //    Serial.print( HeadingControl.total );
 //    Serial.print(", error: ");

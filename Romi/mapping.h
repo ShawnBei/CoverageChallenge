@@ -172,9 +172,9 @@ void Mapper::printMetrics()
 
     float grids = 625;
     
-    for (int i=0;i<MAP_RESOLUTION;i++)
+    for (int i=1;i<MAP_RESOLUTION-1;i++)
     {
-        for(int j=0;j<MAP_RESOLUTION;j++)
+        for(int j=1;j<MAP_RESOLUTION-1;j++)
         {
             int eeprom_address = (i*MAP_RESOLUTION)+j;
             byte value;
