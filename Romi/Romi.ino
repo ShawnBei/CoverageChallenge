@@ -157,7 +157,7 @@ void setup()
   setupRFID();
 
   //Calibrate the IR sensors
-  float alpha = 0.15;
+  float alpha = 0.01;
   LeftIR.setAlpha(alpha);
   MidIR.setAlpha(alpha);
   RightIR.setAlpha(alpha);
@@ -210,9 +210,9 @@ void setup()
   // - "inverse-circular"
   // - "BF"
   // - "circular"
-  String mapType = "inverse-circular";
+  String mapType = "circular";
   Map.initMap(mapType);
-  Pose.setPose(108,108,0);
+  Pose.setPose(972,972,0); // 108,108
 
   LeftSpeedControl.reset();
   RightSpeedControl.reset();
@@ -233,12 +233,12 @@ void setup()
 void loop() {
   
 
-  Pose.update();
-  unsigned long elapsed_time = millis()-timestamp;
-  
-  if (elapsed_time > T_LIMIT){
-    STATE = TIME; // Time has elapsed
-  }
+//  Pose.update();
+//  unsigned long elapsed_time = millis()-timestamp;
+//  
+//  if (elapsed_time > T_LIMIT){
+//    STATE = TIME; // Time has elapsed
+//  }
   
   //doMovement();
   doMapping();
@@ -294,7 +294,7 @@ void forward(){
     
   }
   else{
-    int demand = 6;
+    int demand = 10;
     left_speed_demand = demand - forward_heading_output;
     right_speed_demand = demand + forward_heading_output;
     

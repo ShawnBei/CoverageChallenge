@@ -107,16 +107,7 @@ void Mapper::initMap(String mapType)
           }
           c++; //change character
       }
-  
-//      for (int i = 0; i < 27; i++){
-//        for (int j = 0; j < 27; j++){
-//          if (j == 0 or i == 0 or j == 26 or i == 26){
-//            int pos = (j*MAP_RESOLUTION)+i;
-//            EEPROM.update(pos, (byte)'@');
-//          }
-//          
-//        }
-//      }
+
       
     }else if(mapType == "inverse-circular"){
       char c= '0';

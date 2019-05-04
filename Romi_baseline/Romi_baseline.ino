@@ -98,7 +98,7 @@ unsigned long timestamp;
 
 unsigned long rotation_time = millis();
 unsigned long rotation_out = millis();
-unsigned long T = 135000;
+unsigned long T = 1;
  float forward_bias;
  int finish;
 
@@ -186,16 +186,12 @@ void loop() {
   Pose.update();
   doMapping();
   
-  unsigned long elapsed_time = millis() - timestamp;
-  if (elapsed_time > T){
-    STATE = 4;
-    left_speed_demand = 0;
-    right_speed_demand = 0;
-  }
-
-
-  
-  
+//  unsigned long elapsed_time = millis() - timestamp;
+//  if (elapsed_time > T){
+//    STATE = 4;
+//    left_speed_demand = 0;
+//    right_speed_demand = 0;
+//  }
   
   randomwalk();
   
@@ -208,9 +204,10 @@ void randomwalk(){
     case 2: rotate();
             break;
     case 3: outofbounds();
-            
             break;
-    case 4: play_tone(1);
+    case 4: left_speed_demand = 0;
+            right_speed_demand = 0;
+            play_tone(10);
             break;
     default: Serial.println("ERROR");
       
@@ -223,6 +220,7 @@ void rotate(){
 
   if (condition){
     STATE = 1;
+//    play_tone(1);
   }else{
     left_speed_demand = -10;
     right_speed_demand = 10;
@@ -233,11 +231,13 @@ void outofbounds(){
   int condition = (millis() - rotation_out) > 1000;
   
   if (condition){
+    
     STATE = 1;
     left_speed_demand = 10;
     right_speed_demand = 10;
+//    play_tone(3);
     delay(500);
-    
+  
   }else{
     left_speed_demand = -10;
     right_speed_demand = 10;
@@ -251,17 +251,10 @@ void doMovement() {
 
   float left_distance  = LeftIR.getDistanceInMM();
   float mid_distance   = MidIR.getDistanceInMM();
-  float right_distance = RightIR.getDistanceInMM();
+  float right_distance = 0;
 
-//  Serial.print("mid: ");
-//  Serial.println(mid_distance);
-//  Serial.print("left: ");
-//  Serial.println(left_distance);
-//  Serial.print("right: ");
-//  Serial.println(right_distance);
-
-  if( mid_distance < 150 or left_distance < 150 or right_distance < 150 ) {
-    play_tone(3);
+  if( (mid_distance <= 150 and mid_distance > 80 ) or (left_distance > 80 and left_distance <= 150) or (right_distance <= 150 and right_distance > 80) ) {
+//    play_tone(1);
     forward_bias = 0;
     STATE = 2;
     rotation_time = millis();
@@ -272,7 +265,6 @@ void doMovement() {
   if (Pose.getX() >= 1800 or Pose.getY() >= 1800 or Pose.getX() <= 0 or Pose.getY() <= 0){
     STATE = 3;
     rotation_out = millis();
-    play_tone(1);
   }
 
   if( millis() - walk_update > 500 ) {
@@ -298,9 +290,9 @@ void doMapping() {
 
   float left_distance  = LeftIR.getDistanceInMM();
   float mid_distance   = MidIR.getDistanceInMM();
-  float right_distance = RightIR.getDistanceInMM();
+  float right_distance =0;
 
-  if ( 300 > mid_distance and mid_distance > 150){
+  if ( 200 >= mid_distance and mid_distance > 150){
     mid_distance += 80;
     
     // Here we calculate the actual position of the obstacle we have detected
@@ -313,7 +305,7 @@ void doMapping() {
     
   }
 
-  if ( 310 > left_distance and left_distance > 160){
+  if ( 200 >= left_distance and left_distance > 150){
     left_distance += 80;
         
     // Here we calculate the actual position of the obstacle we have detected
@@ -324,7 +316,7 @@ void doMapping() {
     
   }
   
-  if ( 310 > right_distance and right_distance > 160){
+  if ( 200 >= right_distance and right_distance > 150){
     right_distance += 80;
     
     // Here we calculate the actual position of the obstacle we have detected

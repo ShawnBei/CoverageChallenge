@@ -46,9 +46,9 @@ void play_tone(int beeps)
 {
   for(int i = 0; i < beeps; i++){
     analogWrite(6, 3);
-    delay(1000/beeps);
+    delay(50/beeps);
     analogWrite(6, 0);
-    delay(1000/beeps);
+    delay(50/beeps);
   }
 }
 

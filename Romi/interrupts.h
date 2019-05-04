@@ -294,7 +294,7 @@ void startTimer()
 ISR(TIMER3_COMPA_vect)
 {
 
-//    Pose.update();
+    Pose.update();
     
     /*
      * Calculate Speeds
