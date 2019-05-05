@@ -122,7 +122,7 @@ char e_val;
 char w_val;
 
 int p = 0;
-unsigned long T_LIMIT = 135000;
+unsigned long T_LIMIT = 180000;
 unsigned long timestamp;
 
 
@@ -203,7 +203,7 @@ void setup()
   ButtonB.waitForButton();  
 
   Map.resetMap();
-  Serial.println("Map Erased - Mapping Started");
+  Serial.println("Map Erased - Mapping Started"); 
 
   // DRAW MAP
   // Map types: 
@@ -212,7 +212,7 @@ void setup()
   // - "circular"
   String mapType = "circular";
   Map.initMap(mapType);
-  Pose.setPose(972,972,0); // 108,108
+  Pose.setPose(900,900,0); // 180, 180
 
   LeftSpeedControl.reset();
   RightSpeedControl.reset();
@@ -234,25 +234,25 @@ void loop() {
   
 
 //  Pose.update();
-//  unsigned long elapsed_time = millis()-timestamp;
-//  
-//  if (elapsed_time > T_LIMIT){
-//    STATE = TIME; // Time has elapsed
-//  }
+  unsigned long elapsed_time = millis()-timestamp;
+  
+  if (elapsed_time > T_LIMIT){
+    STATE = TIME; // Time has elapsed
+  }
   
   //doMovement();
-//  doMapping();
-  float left_distance  = LeftIR.getDistanceInMM();
-  float mid_distance   = MidIR.getDistanceInMM();
-  float right_distance = RightIR.getDistanceInMM();
+  doMapping();
+//  float left_distance  = LeftIR.getDistanceInMM();
+//  float mid_distance   = MidIR.getDistanceInMM();
+//  float right_distance = RightIR.getDistanceInMM();
 
-  Serial.print("left: ");
-  Serial.print( left_distance );
-  Serial.print(", mid: ");
-  Serial.print( mid_distance );
-  Serial.print(", right: ");
-  Serial.println( right_distance );
-//  wavefront();
+//  Serial.print("left: ");
+//  Serial.print( left_distance );
+//  Serial.print(", mid: ");
+//  Serial.print( mid_distance );
+//  Serial.print(", right: ");
+//  Serial.println( right_distance );
+  wavefront();
   
   delay(2);
 }
@@ -303,7 +303,7 @@ void forward(){
     
   }
   else{
-    int demand = 10;
+    int demand = 6;
     left_speed_demand = demand - forward_heading_output;
     right_speed_demand = demand + forward_heading_output;
     

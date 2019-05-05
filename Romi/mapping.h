@@ -96,9 +96,9 @@ void Mapper::initMap(String mapType)
       }
     }else if(mapType == "BF"){
       char c = '$';
-      for (int i=1; i < 26; i++)
+      for (int i=2; i < 25; i++)
       {
-          for(int j=1; j < 26; j++)
+          for(int j=2; j < 25; j++)
           {
               int pos = (j*MAP_RESOLUTION)+i;
               EEPROM.update(pos, (byte)c);
@@ -111,7 +111,7 @@ void Mapper::initMap(String mapType)
       
     }else if(mapType == "inverse-circular"){
       char c= '0';
-       for (int i=1; i < 13; i++)
+       for (int i=2; i < 12; i++)
       {
           int m = i + 1;
           int n = 26 - i;
