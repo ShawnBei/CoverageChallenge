@@ -212,7 +212,7 @@ void setup()
   // - "circular"
   String mapType = "circular";
   Map.initMap(mapType);
-  Pose.setPose(900,900,0); // 180, 180
+  Pose.setPose(972,972,0); // (180, 180) --> origin; (972,972) --> center of map
 
   LeftSpeedControl.reset();
   RightSpeedControl.reset();
@@ -228,7 +228,7 @@ void setup()
  * The Romi should:                                                                              
  * - move forwards with random turns 
  * - log lines, RFID and obstacles to the map.
- * 
+ *  
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 void loop() {
   
@@ -245,7 +245,6 @@ void loop() {
 //  float left_distance  = LeftIR.getDistanceInMM();
 //  float mid_distance   = MidIR.getDistanceInMM();
 //  float right_distance = RightIR.getDistanceInMM();
-
 //  Serial.print("left: ");
 //  Serial.print( left_distance );
 //  Serial.print(", mid: ");
@@ -259,7 +258,9 @@ void loop() {
 
 void wavefront(){
   switch(STATE){
-    case 0: forward();
+    case 0: 
+//            doMapping();
+            forward();
             break;
     case 1: walk();
             break;
@@ -276,16 +277,16 @@ void forward(){
   int condition = (count - right_encoder_count) < 0;
   float forward_heading_output  = ForwardHeadingControl.update(dir, Pose.getThetaDegrees());
   
-  Serial.print("FORWARD: Direction: ");
-  Serial.print( dir );
-  Serial.print(", Degree: ");
-  Serial.println(Pose.getThetaDegrees() );
+//  Serial.print("FORWARD: Direction: ");
+//  Serial.print( dir );
+//  Serial.print(", Degree: ");
+//  Serial.print(Pose.getThetaDegrees() );
 //  Serial.print(", Heading output:  ");
 //  Serial.print( forward_heading_output );
-  Serial.print(", left speed: ");
-  Serial.print( left_speed_demand );
-  Serial.print(", right speed: ");
-  Serial.println( right_speed_demand );
+//  Serial.print(", left speed: ");
+//  Serial.print( left_speed_demand );
+//  Serial.print(", right speed: ");
+//  Serial.println( right_speed_demand );
 //  Serial.print(", LEFT ENCODER: ");
 //  Serial.print( left_encoder_count );
 //  Serial.print(", RIGHT ENCODER: ");
@@ -297,8 +298,12 @@ void forward(){
     stop_romi();
     Serial.println(" ");
     Serial.println(  "***********FORWARD FINISHED***********" );
+    Serial.print("X: ");
+    Serial.print(Pose.getX());
+    Serial.print(",  Y: ");
+    Serial.println(Pose.getY());
     Serial.println(" ");
-    Map.printMap();
+//    Map.printMap();
     STATE = WALK;
     
   }
@@ -318,6 +323,22 @@ void walk(){
   determineLowestNeighbor();
   
   determineTurningAngle();
+
+  Serial.print("FLAG_SMALLEST: ");
+  Serial.print( FLAG_SMALLEST );
+  Serial.print(", FLAG: ");
+  Serial.print( FLAG );
+  Serial.print(", DIR: ");
+  Serial.print( dir  );
+  Serial.print(",   ");
+  Serial.print("North: ");
+  Serial.print( n_val );
+  Serial.print(", South: ");
+  Serial.print( s_val );
+  Serial.print(", West: ");
+  Serial.print( w_val  );
+  Serial.print(", East: ");
+  Serial.println( e_val );
   
   if(FLAG_SMALLEST == NORTH){
     Serial.println("next step: FORWARD");
@@ -329,21 +350,7 @@ void walk(){
     STATE = ROTATE;
   }
 
-//  Serial.print("FLAG_SMALLEST: ");
-//  Serial.print( FLAG_SMALLEST );
-//  Serial.print(", FLAG: ");
-//  Serial.print( FLAG );
-//  Serial.print(", DIR: ");
-//  Serial.print( dir  );
-//  Serial.print(",   ");
-//  Serial.print("North: ");
-//  Serial.print( n_val );
-//  Serial.print(", South: ");
-//  Serial.print( s_val );
-//  Serial.print(", West: ");
-//  Serial.print( w_val  );
-//  Serial.print(", East: ");
-//  Serial.println( e_val );
+
 }
 
 void getNeighborReadings(){
@@ -414,6 +421,20 @@ void determineLowestNeighbor(){
       lowest_neighbor = e_val;
       FLAG_SMALLEST = EAST; 
     }
+
+//    if( lowest_neighbor > e_val){
+//      Serial.println("turn east");
+//      lowest_neighbor = e_val;
+//      FLAG_SMALLEST = EAST; 
+//    }
+//    
+//    if( lowest_neighbor > w_val){
+//      Serial.println("turn west");
+//      lowest_neighbor = w_val;
+//      FLAG_SMALLEST = WEST; 
+//    }
+//  
+    
 }
 /*
  * FLAG is the heading direction of Romi
@@ -424,7 +445,7 @@ void determineTurningAngle(){
     MINUS90 = 0;
     FLAG_THETA = true;
 
-    if(Pose.getThetaDegrees())
+    if(Pose.getThetaDegrees() > 0)
       FLAG_THETA = true;
     else
       FLAG_THETA = false;
@@ -583,7 +604,7 @@ void rotate() {
     Serial.println(" ");
     Serial.println("************ROTATE FINISHED*************");
     Serial.println(" ");
-    Map.printMap();
+//    Map.printMap();
     
     count = right_encoder_count + COUNTS_PER_GRID;
     STATE = FORWARD;
@@ -648,9 +669,9 @@ void doMapping() {
   //explored areas
   Map.updateMapFeature( (byte)'=', Pose.getY(), Pose.getX() );
 
-//  float left_distance  = 0; //LeftIR.getDistanceInMM();
+  float left_distance  = 0; //LeftIR.getDistanceInMM();
   float mid_distance   = MidIR.getDistanceInMM();
-//  float right_distance = 0; //RightIR.getDistanceInMM();
+  float right_distance = 0; //RightIR.getDistanceInMM();
 
 //  Serial.print("Left: ");
 //  Serial.print( left_distance );
@@ -659,54 +680,60 @@ void doMapping() {
 //  Serial.print(", Right ");
 //  Serial.println(right_distance);
 
-//  if ( 300 > mid_distance and mid_distance > 152){
-//    mid_distance += 80;
-//    
-//    // Here we calculate the actual position of the obstacle we have detected
-//    float projected_x = Pose.getX() + ( mid_distance * cos( Pose.getThetaRadians()  ) );
-//    float projected_y = Pose.getY() + ( mid_distance * sin( Pose.getThetaRadians() ) );
-//
-//    Map.updateMapFeature( (byte)'O', projected_y, projected_x ); 
-//    
-////    Serial.print("Mid_distance: ");
-////    Serial.println(mid_distance);
-////    Serial.print("Projected_x: ");
-////    Serial.print(projected_x);
-////    Serial.print(", projected_y: ");
-////    Serial.println(projected_y);
-//    
-//    Map.mapBufferMid(projected_y, projected_x, FLAG);
+  if ( 200 > mid_distance and mid_distance > 164){
+    mid_distance += 80;
+    
+    // Here we calculate the actual position of the obstacle we have detected
+    float projected_x = Pose.getX() + ( mid_distance * cos( Pose.getThetaRadians()  ) );
+    float projected_y = Pose.getY() + ( mid_distance * sin( Pose.getThetaRadians() ) );
 
-//    Map.printMap();
-//  }
-//
-//  if ( 330 > left_distance and left_distance > 180){
-//    left_distance += 80;
+//    Serial.print("Mid_distance: ");
+//    Serial.println(mid_distance);
+//    Serial.print("Projected_x: ");
+//    Serial.print(projected_x);
+//    Serial.print(", projected_y: ");
+//    Serial.println(projected_y);
 
-//    
-//    // Here we calculate the actual position of the obstacle we have detected
-//    float projected_x = Pose.getX() + ( left_distance * cos( Pose.getThetaRadians() + 0.602) );
-//    float projected_y = Pose.getY() + ( left_distance * sin( Pose.getThetaRadians() + 0.602) );
+    Map.updateMapFeature( (byte)'O', projected_y, projected_x ); 
+    Map.mapBufferCircle(projected_y, projected_x);
+
+    Map.printMap();
+  }
+
+  if ( 200 > left_distance and left_distance > 164 ){
+    left_distance += 80;
+
+    
+    // Here we calculate the actual position of the obstacle we have detected
+    float projected_x = Pose.getX() + ( left_distance * cos( Pose.getThetaRadians() + 0.602) );
+    float projected_y = Pose.getY() + ( left_distance * sin( Pose.getThetaRadians() + 0.602) );
+    
 //    Serial.print("Projected_x ");
 //    Serial.print(projected_x);
 //    Serial.print(", projected_y");
 //    Serial.print(projected_y);
-//    Map.updateMapFeature( (byte)'O', projected_y, projected_x );
-//    Map.mapBufferLeft(projected_y, projected_x, FLAG);
-//    
-//  }
-//  if ( 330 > right_distance and right_distance > 180){
-//    right_distance += 80;
-//    
-//    // Here we calculate the actual position of the obstacle we have detected
-//    float projected_x = Pose.getX() + ( right_distance * cos( Pose.getThetaRadians() - 0.5847) );
-//    float projected_y = Pose.getY() + ( right_distance * sin( Pose.getThetaRadians() - 0.5847) ); 
+
+    Map.updateMapFeature( (byte)'O', projected_y, projected_x );
+    Map.mapBufferLeft(projected_y, projected_x, FLAG);
+    
+  }
+  
+  if ( 200 > right_distance and right_distance > 164){
+    right_distance += 80;
+    
+    // Here we calculate the actual position of the obstacle we have detected
+    float projected_x = Pose.getX() + ( right_distance * cos( Pose.getThetaRadians() - 0.5847) );
+    float projected_y = Pose.getY() + ( right_distance * sin( Pose.getThetaRadians() - 0.5847) ); 
+    
 //    Serial.print("Projected_x ");
 //    Serial.print(projected_x);
 //    Serial.print(", projected_y");
 //    Serial.print(projected_y);
-//    Map.updateMapFeature( (byte)'O', projected_y , projected_x );
-//    Map.mapBufferRight(projected_y, projected_x, FLAG);
-//  }
+
+    Map.updateMapFeature( (byte)'O', projected_y , projected_x );
+    Map.mapBufferRight(projected_y, projected_x, FLAG);
+  }
+  
 //  Map.printMap();
+
 }

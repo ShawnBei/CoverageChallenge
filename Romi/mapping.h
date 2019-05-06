@@ -16,7 +16,7 @@ class Mapper
         void initMap(String mapType);
         void printMetrics();
         
-        void mapBuffer(float y, float x);
+        void mapBufferCircle(float y, float x);
         void mapBufferRight(float y, float x, int FLAG);
         void mapBufferMid(float y, float x, int FLAG);
         void mapBufferLeft(float y, float x, int FLAG);
@@ -252,7 +252,7 @@ void Mapper::updateMapFeature(byte feature, int y, int x)
     }
 }
 
-void Mapper::mapBuffer(float y, float x){
+void Mapper::mapBufferCircle(float y, float x){
   
   updateMapFeature((byte)'?', y + GRID_DIST, x + GRID_DIST);
   updateMapFeature((byte)'?', y + GRID_DIST, x);
@@ -275,14 +275,14 @@ void Mapper::mapBuffer(float y, float x){
 void Mapper::mapBufferRight(float y, float x, int FLAG){
   if (FLAG == 0){
     updateMapFeature((byte)'?', y            , x - GRID_DIST);
-    updateMapFeature((byte)'?', y - GRID_DIST, x - GRID_DIST);
+    updateMapFeature((byte)'?', y + GRID_DIST, x - GRID_DIST);
     
   }else if (FLAG == 1 ){
-    updateMapFeature((byte)'?', y + GRID_DIST, x            );
-    updateMapFeature((byte)'?', y + GRID_DIST, x - GRID_DIST);
-  }else if (FLAG == 3){
-    updateMapFeature((byte)'?', y - GRID_DIST, x + GRID_DIST);
     updateMapFeature((byte)'?', y - GRID_DIST, x            );
+    updateMapFeature((byte)'?', y - GRID_DIST, x - GRID_DIST);
+  }else if (FLAG == 3){
+    updateMapFeature((byte)'?', y + GRID_DIST, x + GRID_DIST);
+    updateMapFeature((byte)'?', y + GRID_DIST, x            );
   }else if (FLAG == 2){
     updateMapFeature((byte)'?', y            , x + GRID_DIST);
     updateMapFeature((byte)'?', y - GRID_DIST, x + GRID_DIST);
@@ -292,16 +292,16 @@ void Mapper::mapBufferRight(float y, float x, int FLAG){
 void Mapper::mapBufferLeft(float y, float x, int FLAG){
   if (FLAG == 0){
     updateMapFeature((byte)'?', y            , x - GRID_DIST);
-    updateMapFeature((byte)'?', y + GRID_DIST, x - GRID_DIST);
-  }else if (FLAG == 1 ){
-    updateMapFeature((byte)'?', y + GRID_DIST, x            );
-    updateMapFeature((byte)'?', y + GRID_DIST, x + GRID_DIST);
-  }else if (FLAG == 3){
     updateMapFeature((byte)'?', y - GRID_DIST, x - GRID_DIST);
+  }else if (FLAG == 1 ){
     updateMapFeature((byte)'?', y - GRID_DIST, x            );
+    updateMapFeature((byte)'?', y - GRID_DIST, x + GRID_DIST);
+  }else if (FLAG == 3){
+    updateMapFeature((byte)'?', y + GRID_DIST, x - GRID_DIST);
+    updateMapFeature((byte)'?', y + GRID_DIST, x            );
   }else if (FLAG == 2){
-    updateMapFeature((byte)'?', y            , x + GRID_DIST);
-    updateMapFeature((byte)'?', y + GRID_DIST, x + GRID_DIST);
+    updateMapFeature((byte)'?', y            , x - GRID_DIST);
+    updateMapFeature((byte)'?', y + GRID_DIST, x - GRID_DIST);
   }
 }
 
