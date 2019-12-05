@@ -1,0 +1,104 @@
+
+************** left rotation low speed *******************
+
+1. FORWARD: Direction: 0.00, Degree: -0.12
+2. ROTATE: Direction: -90.00, Degree: -89.27
+3. FORWARD: Direction: -90.00, Degree: -89.94
+4. ROTATE: Direction: -180.00, Degree: -179.40
+5. FORWARD: Direction: -180.00, Degree: -180.14
+6. FORWARD: Direction: -180.00, Degree: -180.01
+7. ROTATE: Direction: 90.00, Degree: 90.91
+8. FORWARD: Direction: 90.00, Degree: 89.92
+9. FORWARD: Direction: 90.00, Degree: 89.98
+10. ROTATE: Direction: 0.00, Degree: 0.96
+11. FORWARD: Direction: 0.00, Degree: 0.10
+12. FORWARD: Direction: 0.00, Degree: 0.04
+13. FORWARD: Direction: 0.00, Degree: -0.03
+14. ROTATE: Direction: -90.00, Degree: -89.54
+15. FORWARD: Direction: -90.00, Degree: -90.03
+16. FORWARD: Direction: -90.00, Degree: -89.97
+17. FORWARD: Direction: -90.00, Degree: -90.03
+18. ROTATE: Direction: -180.00, Degree: -179.42
+19. FORWARD: Direction: -180.00, Degree: -179.98
+20. FORWARD: Direction: -180.00, Degree: -180.04
+21. FORWARD: Direction: -180.00, Degree: -180.04
+22. FORWARD: Direction: -180.00, Degree: -179.98
+23. ROTATE: Direction: 90.00, Degree: 90.76
+24. FORWARD: Direction: 90.00, Degree: 90.08
+25. FORWARD: Direction: 90.00, Degree: 90.02
+
+
+FORWARD: Direction: -180.00, Degree: -178.66
+FORWARD: Direction: -180.00, Degree: -178.54
+FORWARD: Direction: -180.00, Degree: -178.54
+FORWARD: Direction: -180.00, Degree: -178.54
+FORWARD: Direction: -180.00, Degree: -178.42
+FORWARD: Direction: -180.00, Degree: -178.42
+FORWARD: Direction: -180.00, Degree: -178.42
+FORWARD: Direction: -180.00, Degree: -178.35
+FORWARD: Direction: -180.00, Degree: -178.35
+FORWARD: Direction: -180.00, Degree: -178.35
+FORWARD: Direction: -180.00, Degree: -178.29
+FORWARD: Direction: -180.00, Degree: -178.29
+FORWARD: Direction: -180.00, Degree: -178.29
+FORWARD: Direction: -180.00, Degree: -178.23
+
+
+Frame 1, all 25 behaviors: 4.99 degrees
+Frame 1, forward 14 behaviors: 1.63 degrees
+Frame 2, forward 14 behaviors: 20.85 degrees
+
+
+
+
+
+************** right rotation *******************
+
+
+1. FORWARD: Direction: 0.00, Degree: 0.00
+2. ROTATE: Direction: -90.00, Degree: -89.33
+3. FORWARD: Direction: -90.00, Degree: -90.07
+4. ROTATE: Direction: -180.00, Degree: -179.21
+5. FORWARD: Direction: -180.00, Degree: -180.01
+6. FORWARD: Direction: -180.00, Degree: -179.95
+7. ROTATE: Direction: 90.00, Degree: 90.78
+8. FORWARD: Direction: 90.00, Degree: 89.98
+9. FORWARD: Direction: 90.00, Degree: 89.98
+10.ROTATE: Direction: 0.00, Degree: 0.96
+11.FORWARD: Direction: 0.00, Degree: 0.04
+12.FORWARD: Direction: 0.00, Degree: -0.09
+13.FORWARD: Direction: 0.00, Degree: -0.03
+14.ROTATE: Direction: -90.00, Degree: -89.48
+15.FORWARD: Direction: -90.00, Degree: -90.03
+16.FORWARD: Direction: -90.00, Degree: -89.97
+17.FORWARD: Direction: -90.00, Degree: -89.97
+18.ROTATE: Direction: -180.00, Degree: -179.30
+19.FORWARD: Direction: -180.00, Degree: -180.04
+20.FORWARD: Direction: -180.00, Degree: -180.10
+21.FORWARD: Direction: -180.00, Degree: -179.98
+22.FORWARD: Direction: -180.00, Degree: -179.98
+23.ROTATE: Direction: 90.00, Degree: 90.51
+24.FORWARD: Direction: 90.00, Degree: 89.95
+25.FORWARD: Direction: 90.00, Degree: 89.95
+
+
+FORWARD: Direction: -90.00, Degree: -89.98
+FORWARD: Direction: -90.00, Degree: -89.98
+FORWARD: Direction: -90.00, Degree: -89.98
+FORWARD: Direction: -90.00, Degree: -90.04
+FORWARD: Direction: -90.00, Degree: -90.04
+FORWARD: Direction: -90.00, Degree: -90.04
+FORWARD: Direction: -90.00, Degree: -90.04
+FORWARD: Direction: -90.00, Degree: -90.04
+FORWARD: Direction: -90.00, Degree: -90.04
+FORWARD: Direction: -90.00, Degree: -90.04
+FORWARD: Direction: -90.00, Degree: -90.04
+FORWARD: Direction: -90.00, Degree: -90.04
+FORWARD: Direction: -90.00, Degree: -90.04
+FORWARD: Direction: -90.00, Degree: -90.10
+
+
+Frame 1, all 25 behaviors: 5.60 degrees
+Frame 1, forward 14 behaviors: 0.7 degrees
+Frame 2, forward 14 behaviors: 0.56 degrees
+
