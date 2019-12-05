@@ -68,7 +68,7 @@ void Mapper::initMap(String mapType)
 
     if (mapType == "circular"){
       char c= '<';
-      for (int i=1; i < 13; i++)
+      for (int i=2; i < 13; i++)
       {
           int m = i + 1;
           int n = 26 - i;
@@ -111,7 +111,7 @@ void Mapper::initMap(String mapType)
       
     }else if(mapType == "inverse-circular"){
       char c= '0';
-       for (int i=2; i < 12; i++)
+       for (int i=2; i < 13; i++)
       {
           int m = i + 1;
           int n = 26 - i;

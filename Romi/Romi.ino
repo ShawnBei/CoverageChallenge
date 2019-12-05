@@ -157,7 +157,7 @@ void setup()
   setupRFID();
 
   //Calibrate the IR sensors
-  float alpha = 0.01;
+  float alpha = 0.15;
   LeftIR.setAlpha(alpha);
   MidIR.setAlpha(alpha);
   RightIR.setAlpha(alpha);
@@ -210,9 +210,9 @@ void setup()
   // - "inverse-circular"
   // - "BF"
   // - "circular"
-  String mapType = "circular";
+  String mapType = "BF";
   Map.initMap(mapType);
-  Pose.setPose(972,972,0); // (180, 180) --> origin; (972,972) --> center of map
+  Pose.setPose(180,180,0); // (180, 180) --> origin; (972,972) --> center of map
 
   LeftSpeedControl.reset();
   RightSpeedControl.reset();
@@ -277,12 +277,12 @@ void forward(){
   int condition = (count - right_encoder_count) < 0;
   float forward_heading_output  = ForwardHeadingControl.update(dir, Pose.getThetaDegrees());
   
-//  Serial.print("FORWARD: Direction: ");
-//  Serial.print( dir );
-//  Serial.print(", Degree: ");
-//  Serial.print(Pose.getThetaDegrees() );
-//  Serial.print(", Heading output:  ");
-//  Serial.print( forward_heading_output );
+  Serial.print("FORWARD: Direction: ");
+  Serial.print( dir );
+  Serial.print(", Degree: ");
+  Serial.print(Pose.getThetaDegrees() );
+  Serial.print(", Heading output:  ");
+  Serial.println( forward_heading_output );
 //  Serial.print(", left speed: ");
 //  Serial.print( left_speed_demand );
 //  Serial.print(", right speed: ");
@@ -324,21 +324,21 @@ void walk(){
   
   determineTurningAngle();
 
-  Serial.print("FLAG_SMALLEST: ");
-  Serial.print( FLAG_SMALLEST );
-  Serial.print(", FLAG: ");
-  Serial.print( FLAG );
-  Serial.print(", DIR: ");
-  Serial.print( dir  );
-  Serial.print(",   ");
-  Serial.print("North: ");
-  Serial.print( n_val );
-  Serial.print(", South: ");
-  Serial.print( s_val );
-  Serial.print(", West: ");
-  Serial.print( w_val  );
-  Serial.print(", East: ");
-  Serial.println( e_val );
+//  Serial.print("FLAG_SMALLEST: ");
+//  Serial.print( FLAG_SMALLEST );
+//  Serial.print(", FLAG: ");
+//  Serial.print( FLAG );
+//  Serial.print(", DIR: ");
+//  Serial.print( dir  );
+//  Serial.print(",   ");
+//  Serial.print("North: ");
+//  Serial.print( n_val );
+//  Serial.print(", South: ");
+//  Serial.print( s_val );
+//  Serial.print(", West: ");
+//  Serial.print( w_val  );
+//  Serial.print(", East: ");
+//  Serial.println( e_val );
   
   if(FLAG_SMALLEST == NORTH){
     Serial.println("next step: FORWARD");
@@ -410,30 +410,30 @@ void determineLowestNeighbor(){
       FLAG_SMALLEST = SOUTH; 
     }
     
-    if( lowest_neighbor > w_val){
-      Serial.println("turn west");
-      lowest_neighbor = w_val;
-      FLAG_SMALLEST = WEST; 
-    }
-  
-    if( lowest_neighbor > e_val){
-      Serial.println("turn east");
-      lowest_neighbor = e_val;
-      FLAG_SMALLEST = EAST; 
-    }
-
-//    if( lowest_neighbor > e_val){
-//      Serial.println("turn east");
-//      lowest_neighbor = e_val;
-//      FLAG_SMALLEST = EAST; 
-//    }
-//    
 //    if( lowest_neighbor > w_val){
 //      Serial.println("turn west");
 //      lowest_neighbor = w_val;
 //      FLAG_SMALLEST = WEST; 
 //    }
 //  
+//    if( lowest_neighbor > e_val){
+//      Serial.println("turn east");
+//      lowest_neighbor = e_val;
+//      FLAG_SMALLEST = EAST; 
+//    }
+
+    if( lowest_neighbor > e_val){
+      Serial.println("turn east");
+      lowest_neighbor = e_val;
+      FLAG_SMALLEST = EAST; 
+    }
+    
+    if( lowest_neighbor > w_val){
+      Serial.println("turn west");
+      lowest_neighbor = w_val;
+      FLAG_SMALLEST = WEST; 
+    }
+  
     
 }
 /*
@@ -568,11 +568,11 @@ void rotate() {
     Serial.print("ROTATE: Direction: ");
     Serial.print( dir );
     Serial.print(", Degree: ");
-    Serial.println( theta );
+    Serial.print( theta );
 //    Serial.print( ", ERROR: " );
 //    Serial.print( error );
-//    Serial.print(", Heading cotrol output:  ");
-//    Serial.println( output );
+    Serial.print(", Heading cotrol output:  ");
+    Serial.println( output );
 //    Serial.print(", left speed: ");
 //    Serial.print( left_speed_demand );
 //    Serial.print(", right speed: ");
@@ -669,9 +669,11 @@ void doMapping() {
   //explored areas
   Map.updateMapFeature( (byte)'=', Pose.getY(), Pose.getX() );
 
-  float left_distance  = 0; //LeftIR.getDistanceInMM();
+/*
+
+  float left_distance  = LeftIR.getDistanceInMM();
   float mid_distance   = MidIR.getDistanceInMM();
-  float right_distance = 0; //RightIR.getDistanceInMM();
+  float right_distance = RightIR.getDistanceInMM();
 
 //  Serial.print("Left: ");
 //  Serial.print( left_distance );
@@ -705,8 +707,8 @@ void doMapping() {
 
     
     // Here we calculate the actual position of the obstacle we have detected
-    float projected_x = Pose.getX() + ( left_distance * cos( Pose.getThetaRadians() + 0.602) );
-    float projected_y = Pose.getY() + ( left_distance * sin( Pose.getThetaRadians() + 0.602) );
+    float projected_x = Pose.getX() + ( left_distance * cos( Pose.getThetaRadians() + 0.61087) );
+    float projected_y = Pose.getY() + ( left_distance * sin( Pose.getThetaRadians() + 0.61087) );
     
 //    Serial.print("Projected_x ");
 //    Serial.print(projected_x);
@@ -722,8 +724,8 @@ void doMapping() {
     right_distance += 80;
     
     // Here we calculate the actual position of the obstacle we have detected
-    float projected_x = Pose.getX() + ( right_distance * cos( Pose.getThetaRadians() - 0.5847) );
-    float projected_y = Pose.getY() + ( right_distance * sin( Pose.getThetaRadians() - 0.5847) ); 
+    float projected_x = Pose.getX() + ( right_distance * cos( Pose.getThetaRadians() - 0.61959) );
+    float projected_y = Pose.getY() + ( right_distance * sin( Pose.getThetaRadians() - 0.61959) ); 
     
 //    Serial.print("Projected_x ");
 //    Serial.print(projected_x);
@@ -736,4 +738,7 @@ void doMapping() {
   
 //  Map.printMap();
 
+
+
+*/
 }

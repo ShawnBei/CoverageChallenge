@@ -33,8 +33,8 @@ volatile long right_encoder_count; // used by encoder to count the rotation
 #define WEST    2
 #define EAST    3
 
-#define SHARP_IR_PIN A0 //Pin for the IR Distance sensor
-#define SHARP_IR_PIN_RIGHT A3 //Pin for the IR Distance sensor
+#define SHARP_IR_PIN A3 //Pin for the IR Distance sensor
+#define SHARP_IR_PIN_RIGHT A0 //Pin for the IR Distance sensor
 #define SHARP_IR_PIN_LEFT A4 //Pin for the IR Distance sensor
 
 Kinematics    Pose; //Kinematics class to store position and heading
@@ -98,7 +98,7 @@ unsigned long timestamp;
 
 unsigned long rotation_time = millis();
 unsigned long rotation_out = millis();
-unsigned long T = 1;
+unsigned long T = 180000;
  float forward_bias;
  int finish;
 
@@ -194,6 +194,19 @@ void loop() {
   }
   
   randomwalk();
+
+//  float left_distance  = LeftIR.getDistanceInMM();
+//  float mid_distance   = MidIR.getDistanceInMM();
+//  float right_distance = RightIR.getDistanceInMM();
+//  
+//  // left A4; right A0; middle A3
+//  
+//  Serial.print("left: ");
+//  Serial.print( left_distance );
+//  Serial.print(", mid: ");
+//  Serial.print( mid_distance );
+//  Serial.print(", right: ");
+//  Serial.println( right_distance );
   
   delay(2);
 }
@@ -251,7 +264,7 @@ void doMovement() {
 
   float left_distance  = LeftIR.getDistanceInMM();
   float mid_distance   = MidIR.getDistanceInMM();
-  float right_distance = 0;
+  float right_distance = RightIR.getDistanceInMM();
 
   if( (mid_distance <= 150 and mid_distance > 80 ) or (left_distance > 80 and left_distance <= 150) or (right_distance <= 150 and right_distance > 80) ) {
 //    play_tone(1);
@@ -290,9 +303,9 @@ void doMapping() {
 
   float left_distance  = LeftIR.getDistanceInMM();
   float mid_distance   = MidIR.getDistanceInMM();
-  float right_distance =0;
+  float right_distance = RightIR.getDistanceInMM();
 
-  if ( 200 >= mid_distance and mid_distance > 150){
+  if ( 200 >= mid_distance and mid_distance > 164){
     mid_distance += 80;
     
     // Here we calculate the actual position of the obstacle we have detected
@@ -305,23 +318,23 @@ void doMapping() {
     
   }
 
-  if ( 200 >= left_distance and left_distance > 150){
+  if ( 200 >= left_distance and left_distance > 164){
     left_distance += 80;
         
     // Here we calculate the actual position of the obstacle we have detected
-    float projected_x = Pose.getX() + ( left_distance * cos( Pose.getThetaRadians() + 0.602) );
-    float projected_y = Pose.getY() + ( left_distance * sin( Pose.getThetaRadians() + 0.602) );
+    float projected_x = Pose.getX() + ( left_distance * cos( Pose.getThetaRadians() + 0.61087) );
+    float projected_y = Pose.getY() + ( left_distance * sin( Pose.getThetaRadians() + 0.61087) );
     Map.updateMapFeature( (byte)'O', projected_y, projected_x );
 //    Map.mapBufferLeft(projected_y, projected_x, FLAG);
     
   }
   
-  if ( 200 >= right_distance and right_distance > 150){
+  if ( 200 >= right_distance and right_distance > 164){
     right_distance += 80;
     
     // Here we calculate the actual position of the obstacle we have detected
-    float projected_x = Pose.getX() + ( right_distance * cos( Pose.getThetaRadians() - 0.5847) );
-    float projected_y = Pose.getY() + ( right_distance * sin( Pose.getThetaRadians() - 0.5847) ); 
+    float projected_x = Pose.getX() + ( right_distance * cos( Pose.getThetaRadians() - 0.61959) );
+    float projected_y = Pose.getY() + ( right_distance * sin( Pose.getThetaRadians() - 0.61959) ); 
     Map.updateMapFeature( (byte)'O', projected_y , projected_x );
 //    Map.mapBufferRight(projected_y, projected_x, FLAG);
   }
